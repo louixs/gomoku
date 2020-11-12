@@ -30,21 +30,20 @@ void draw_board () {
     window.draw(vline, 2, sf::Lines);
   };
 
-  // TODO: remove - here just to understand how quads work
-  // sf::Vertex cell[] = {
-  //   sf::Vertex(sf::Vector2f(mid_cell, mid_cell), sf::Color::Red),
-  //   sf::Vertex(sf::Vector2f(cell_size + mid_cell, mid_cell), sf::Color::Red),
-  //   sf::Vertex(sf::Vector2f(cell_size + mid_cell, cell_size + mid_cell), sf::Color::Red),
-  //   sf::Vertex(sf::Vector2f(mid_cell, cell_size + mid_cell), sf::Color::Red),
-  // };
-  // window.draw(cell, 4, sf::Quads);
-
   // Draw start points
   float radius = mid_cell / 5;
   sf::CircleShape circle(radius);
   circle.setFillColor(sf::Color::Black);
-  circle.setPosition( (mid_cell + cell_size * 3.f) - radius, (mid_cell + cell_size * 3.f) - radius);
-  window.draw(circle);
+  for (int x = 0; x < 3; x++) {
+    for (int y = 0; y < 3; y++) {
+      int cells_between = 6;
+      int x_distance = (cell_size * cells_between) * x;
+      int y_distance = (cell_size * cells_between) * y;
+      circle.setPosition( ((mid_cell + cell_size * 3.f) + x_distance ) - radius,
+                          ((mid_cell + cell_size * 3.f) + y_distance) - radius);
+      window.draw(circle);
+    };
+  };
 }
 
 
