@@ -6,6 +6,7 @@ using namespace std;
 const int cell_size = 40;
 int board_size = 19;
 int board[19][19] = { 0 };
+
 #define BLACK (1)
 #define WHITE (2)
 
@@ -49,13 +50,13 @@ void draw_board (sf::RenderWindow& window) {
 
 void draw_stones (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone) {
   // Note that this doesn't work if window is resized!!
-  for (int y = 0; y < board_size; y++) {
-    for (int x = 0; x < board_size; x++) {
-        if (board[y][x] == BLACK) {
+  for (int x = 0; x < board_size; x++) {
+    for (int y = 0; y < board_size; y++) {
+        if (board[x][y] == BLACK) {
           black_stone.setPosition(x*cell_size, y*cell_size);
           window.draw(black_stone);
         }
-        if (board[y][x] == WHITE) {
+        if (board[x][y] == WHITE) {
           white_stone.setPosition(x*cell_size, y*cell_size);
           window.draw(white_stone);
         }
@@ -70,6 +71,16 @@ void update (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& whit
   window.display();
 }
 
+enum turns { FIRST = BLACK, SECOND = WHITE };
+void change_turn (enum turns& current_turn) {
+  if (current_turn == FIRST) {
+    current_turn = SECOND;
+  } else {
+    current_turn = FIRST;
+  }
+}
+
+
 int main() {
   sf::ContextSettings s;
   s.antialiasingLevel = 8;
@@ -77,6 +88,9 @@ int main() {
                           "Gomoku",
                           sf::Style::Default,
                           s);
+
+  // init turn
+  turns current_turn = FIRST;
 
   // load stones and prep
   sf::Texture black_stone_t;
@@ -110,8 +124,11 @@ int main() {
         cout << "ix: " << ix << endl;
         cout << "iy: " << iy << endl;
         if (event.mouseButton.button == sf::Mouse::Left) {
-          board[iy][ix] = BLACK;
+          cout << "Current turn before turn change: " << current_turn << endl;
+          board[ix][iy] = current_turn;
           update(window, black_stone, white_stone);
+          cout << "Current turn after turn change: " << current_turn << endl;
+          change_turn(current_turn);
         }
       }
     }
