@@ -5,10 +5,11 @@ using namespace std;
 
 const int cell_size = 40;
 int board_size = 19;
-const int board[19][19] = { 0 }; // could not pass in variable here
-sf::RenderWindow window(sf::VideoMode(cell_size * board_size, cell_size * board_size), "Gomoku");
+int board[19][19] = { 0 };
+#define BLACK (1)
+#define WHITE (2)
 
-void draw_board () {
+void draw_board (sf::RenderWindow& window) {
   window.clear(sf::Color(255,207,97));
   float mid_cell = 1.0 * cell_size / 2;
 
@@ -46,24 +47,74 @@ void draw_board () {
   };
 }
 
+void draw_stones (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone) {
+  for (int y = 0; y < board_size; y++) {
+    for (int x = 0; x < board_size; x++) {
+        if (board[y][x] == BLACK) {
+          black_stone.setPosition(x*cell_size, y*cell_size);
+          window.draw(black_stone);
+        }
+        if (board[y][x] == WHITE) {
+          white_stone.setPosition(x*cell_size, y*cell_size);
+          window.draw(white_stone);
+        }
+    }
+  }
+}
 
-void update () {
+void update (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone) {
 
-  draw_board();
+  draw_board(window);
+  draw_stones(window, black_stone, white_stone);
   window.display();
 }
 
 int main() {
+  sf::ContextSettings s;
+  s.antialiasingLevel = 8;
+  sf::RenderWindow window(sf::VideoMode(cell_size * board_size, cell_size * board_size),
+                          "Gomoku",
+                          sf::Style::Default,
+                          s);
 
+  // load stones and prep
+  sf::Texture black_stone_t;
+  black_stone_t.loadFromFile("black_stone.bmp");
+  black_stone_t.setSmooth(true);
+	sf::Texture white_stone_t;
+  white_stone_t.loadFromFile("white_stone.bmp");
+  white_stone_t.setSmooth(true);
 
+  sf::Sprite black_stone(black_stone_t);
+  sf::Sprite white_stone(white_stone_t);
+  black_stone.setScale(1.0*cell_size / black_stone.getLocalBounds().width,
+                       1.0*cell_size / black_stone.getLocalBounds().height);
+  white_stone.setScale(1.0*cell_size / white_stone.getLocalBounds().width,
+                       1.0*cell_size / white_stone.getLocalBounds().height);
+
+  // Game loop
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
       };
+
+      if (event.type == sf::Event::MouseButtonPressed) {
+        int ix = event.mouseButton.x / cell_size;
+        int iy = event.mouseButton.y / cell_size;
+        cout << "Button pressed" << endl;
+        cout << "Mouse X: " << event.mouseButton.x << endl;
+        cout << "Mouse Y: " << event.mouseButton.y << endl;
+        cout << "ix: " << ix << endl;
+        cout << "iy: " << iy << endl;
+        if (event.mouseButton.button == sf::Mouse::Left) {
+          board[iy][ix] = BLACK;
+          update(window, black_stone, white_stone);
+        }
+      }
     }
-    update();
+    update(window, black_stone, white_stone);
   }
 
   return 0;
