@@ -48,6 +48,7 @@ void draw_board (sf::RenderWindow& window) {
 }
 
 void draw_stones (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone) {
+  // Note that this doesn't work if window is resized!!
   for (int y = 0; y < board_size; y++) {
     for (int x = 0; x < board_size; x++) {
         if (board[y][x] == BLACK) {
