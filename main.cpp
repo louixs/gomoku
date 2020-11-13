@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -64,9 +65,19 @@ void draw_stones (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite&
   }
 }
 
-void update (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone) {
+void draw_text (sf::RenderWindow& window, sf::Font& font, sf::Text t, string& s) {
+  cout << "draw text: " << s << endl;
+  t.setString(s);
+  t.setPosition(5.f, 5.f);
+  t.setCharacterSize(24);
+  t.setFillColor(sf::Color::Red);
+  window.draw(t);
+}
+
+void update (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone, sf::Text text) {
   draw_board(window);
   draw_stones(window, black_stone, white_stone);
+  window.draw(text);
   window.display();
 }
 
@@ -280,9 +291,22 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
   return false;
 };
 
-// is_legal
 inline bool is_legal(const int (&board)[19][19], int x, int y){
   return board[x][y] == 0 || false;
+};
+
+string get_winner_str (int stone) {
+  switch(stone) {
+    case 1:
+      return "Black";
+      break;
+    case 2:
+      return "White";
+      break;
+    default:
+      return "Unrecognised option";
+      break;
+  }
 };
 
 int main() {
@@ -292,7 +316,19 @@ int main() {
                           "Gomoku",
                           sf::Style::Default,
                           s);
-
+  // text
+  sf::Font font;
+  if (!font.loadFromFile("noto_sans.otf"))
+  {
+    cout << "font didn't load!" << endl;
+    // error...
+  }
+  string victory_message;
+  sf::Text text;
+  text.setFont(font);
+  text.setPosition(5.f, 5.f);
+  text.setCharacterSize(24);
+  text.setFillColor(sf::Color::Red);
   // init turn
   turns current_turn = FIRST;
 
@@ -330,11 +366,17 @@ int main() {
         cout << "iy: " << iy << endl;
         if (event.mouseButton.button == sf::Mouse::Left && is_legal(board, ix, iy)) {
           board[ix][iy] = current_turn;
-          update(window, black_stone, white_stone);
+          update(window, black_stone, white_stone, text);
 
           // check winner first -- after five turns to save some computation?
           if (has_won(board, current_turn, ix, iy)) {
-            cout << current_turn << " has won!" << endl;
+            string winner = get_winner_str(current_turn);
+            string victory_message = winner + "has won!";
+            // won_text.setString(txt);
+            // won_text.setPosition(100.f, 100.f);
+            // draw_text(window, font, text, victory_message);
+            text.setString(victory_message);
+            cout << victory_message << endl;
           };
 
           // if no winner, change turn
@@ -344,7 +386,7 @@ int main() {
         }
       }
     }
-    update(window, black_stone, white_stone);
+    update(window, black_stone, white_stone, text);
   }
 
   return 0;
