@@ -65,14 +65,13 @@ void draw_stones (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite&
 }
 
 void update (sf::RenderWindow& window, sf::Sprite& black_stone, sf::Sprite& white_stone) {
-
   draw_board(window);
   draw_stones(window, black_stone, white_stone);
   window.display();
 }
 
 enum turns { FIRST = BLACK, SECOND = WHITE };
-void change_turn (enum turns& current_turn) {
+inline void change_turn (enum turns& current_turn) {
   if (current_turn == FIRST) {
     current_turn = SECOND;
   } else {
@@ -80,6 +79,211 @@ void change_turn (enum turns& current_turn) {
   }
 }
 
+
+// TODO: refactor!
+bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
+  
+  int total_count = 0;
+  int current_color = 0;
+
+  // vertical check
+  // count up
+  int y1 = y;
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+      
+    current_color = board[x][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    y1--;
+  } while (y1 > 0 && current_color == stone_color);
+
+  // keep checking if the function hasn't exited
+  // count down
+  // reset params
+  current_color = 0;
+  y1 = y;
+  // avoid double count
+  total_count = total_count - 1;
+
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x][y1];
+    if (current_color == stone_color) {
+      total_count++;
+    }
+    y1++;
+
+  } while (y1 < board_size && current_color == stone_color);
+
+  // Horizontal check
+  current_color = 0;
+  int x1 = x;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check left
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1--;
+  } while (x1 > 0 && current_color == stone_color);
+
+  // check right
+  // reset vars
+  current_color = 0;
+  x1 = x;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check right
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1++;
+  } while (x1 < board_size && current_color == stone_color);
+
+  // DIAGONAL
+
+  // reset vars
+  current_color = 0;
+  x1 = x;
+  y1 = y;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check left up
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1--;
+    y1--;
+  } while (x1 > 0 && y1 > 0 && current_color == stone_color);
+
+  // reset vars
+  current_color = 0;
+  x1 = x;
+  y1 = y;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check left down
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1--;
+    y1++;
+  } while (x1 > 0 && y < board_size && current_color == stone_color);
+
+  // reset vars
+  current_color = 0;
+  x1 = x;
+  y1 = y;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check right up
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1++;
+    y1--;
+  } while (x1 < board_size && y > 0 && current_color == stone_color);
+
+  // reset vars
+  current_color = 0;
+  x1 = x;
+  y1 = y;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check right down
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1++;
+    y1++;
+  } while (x1 < board_size && y < board_size && current_color == stone_color);
+
+
+  cout << "current total " << total_count << endl;
+
+  return false;
+};
+
+// is_legal
+inline bool is_legal(const int (&board)[19][19], int x, int y){
+  return board[x][y] == 0 || false;
+};
 
 int main() {
   sf::ContextSettings s;
@@ -93,6 +297,7 @@ int main() {
   turns current_turn = FIRST;
 
   // load stones and prep
+  // TODO: refactor
   sf::Texture black_stone_t;
   black_stone_t.loadFromFile("black_stone.bmp");
   black_stone_t.setSmooth(true);
@@ -106,7 +311,7 @@ int main() {
                        1.0*cell_size / black_stone.getLocalBounds().height);
   white_stone.setScale(1.0*cell_size / white_stone.getLocalBounds().width,
                        1.0*cell_size / white_stone.getLocalBounds().height);
-
+ 
   // Game loop
   while (window.isOpen()) {
     sf::Event event;
@@ -123,12 +328,19 @@ int main() {
         cout << "Mouse Y: " << event.mouseButton.y << endl;
         cout << "ix: " << ix << endl;
         cout << "iy: " << iy << endl;
-        if (event.mouseButton.button == sf::Mouse::Left) {
-          cout << "Current turn before turn change: " << current_turn << endl;
+        if (event.mouseButton.button == sf::Mouse::Left && is_legal(board, ix, iy)) {
           board[ix][iy] = current_turn;
           update(window, black_stone, white_stone);
-          cout << "Current turn after turn change: " << current_turn << endl;
+
+          // check winner first -- after five turns to save some computation?
+          if (has_won(board, current_turn, ix, iy)) {
+            cout << current_turn << " has won!" << endl;
+          };
+
+          // if no winner, change turn
           change_turn(current_turn);
+        } else {
+          cout << "Cannot place your stone there, try again" << endl;
         }
       }
     }
