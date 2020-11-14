@@ -97,7 +97,7 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
   int total_count = 0;
   int current_color = 0;
 
-  // vertical check
+  // VERTICAL check
   // count up
   int y1 = y;
   do {
@@ -118,7 +118,6 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
   // keep checking if the function hasn't exited
   // count down
   // reset params
-  current_color = 0;
   y1 = y;
   // avoid double count
   total_count = total_count - 1;
@@ -137,11 +136,9 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
   } while (y1 < board_size && current_color == stone_color);
 
   // Horizontal check
-  current_color = 0;
+  // reset params
   int x1 = x;
-
-  // avoid double count
-  total_count = total_count - 1;
+  total_count = 0;
 
   // check left
   do {
@@ -161,7 +158,6 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
 
   // check right
   // reset vars
-  current_color = 0;
   x1 = x;
 
   // avoid double count
@@ -186,13 +182,11 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
   // DIAGONAL
 
   // reset vars
-  current_color = 0;
   x1 = x;
   y1 = y;
+  total_count = 0;
 
-  // avoid double count
-  total_count = total_count - 1;
-
+  // 1. LEFT UP RIGHT DOWN
   // check left up
   do {
     if (total_count == 5) {
@@ -210,13 +204,36 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
     y1--;
   } while (x1 > 0 && y1 > 0 && current_color == stone_color);
 
+  // check right down
   // reset vars
-  current_color = 0;
   x1 = x;
   y1 = y;
 
   // avoid double count
   total_count = total_count - 1;
+
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = board[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == stone_color) {
+      total_count++;
+    }
+
+    x1++;
+    y1++;
+  } while (x1 < board_size && y < board_size && current_color == stone_color);
+
+
+  // 2. LEFT TO RIGHT UP
+  // reset vars
+  x1 = x;
+  y1 = y;
+  total_count = 0;
 
   // check left down
   do {
@@ -235,15 +252,13 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
     y1++;
   } while (x1 > 0 && y < board_size && current_color == stone_color);
 
+  // right up
   // reset vars
-  current_color = 0;
   x1 = x;
   y1 = y;
 
-  // avoid double count
   total_count = total_count - 1;
 
-  // check right up
   do {
     if (total_count == 5) {
       return true;
@@ -259,34 +274,6 @@ bool has_won(const int (&board)[19][19], int stone_color, int x, int y) {
     x1++;
     y1--;
   } while (x1 < board_size && y > 0 && current_color == stone_color);
-
-  // reset vars
-  current_color = 0;
-  x1 = x;
-  y1 = y;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  // check right down
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = board[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == stone_color) {
-      total_count++;
-    }
-
-    x1++;
-    y1++;
-  } while (x1 < board_size && y < board_size && current_color == stone_color);
-
-
-  cout << "current total " << total_count << endl;
 
   return false;
 };
@@ -371,7 +358,7 @@ int main() {
           // check winner first -- after five turns to save some computation?
           if (has_won(board, current_turn, ix, iy)) {
             string winner = get_winner_str(current_turn);
-            string victory_message = winner + "has won!";
+            string victory_message = winner + " has won!";
             // won_text.setString(txt);
             // won_text.setPosition(100.f, 100.f);
             // draw_text(window, font, text, victory_message);
