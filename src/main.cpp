@@ -296,7 +296,7 @@ int main() {
                           s);
   // text
   sf::Font font;
-  if (!font.loadFromFile("noto_sans.otf"))
+  if (!font.loadFromFile("assets/noto_sans.otf"))
   {
     cout << "font didn't load!" << endl;
     // error...
@@ -313,10 +313,10 @@ int main() {
   // load stones and prep
   // TODO: refactor
   sf::Texture black_stone_t;
-  black_stone_t.loadFromFile("black_stone.bmp");
+  black_stone_t.loadFromFile("assets/black_stone.bmp");
   black_stone_t.setSmooth(true);
 	sf::Texture white_stone_t;
-  white_stone_t.loadFromFile("white_stone.bmp");
+  white_stone_t.loadFromFile("assets/white_stone.bmp");
   white_stone_t.setSmooth(true);
 
   sf::Sprite black_stone(black_stone_t);
