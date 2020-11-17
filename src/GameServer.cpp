@@ -14,6 +14,8 @@ GameServer::RemotePeer::RemotePeer()
 
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
+, mGameStarted(false)
+, mGameStartPlayerCount(2)
 , mIsListening(false)
 , mMaxConnectedPlayers(2)
 , mConnectedPlayers(0)
@@ -22,6 +24,7 @@ GameServer::GameServer()
 
 {
   mListenerSocket.setBlocking(false);
+  mPeers[0].reset(new RemotePeer());
   mThread.launch();
 }
 
@@ -58,7 +61,8 @@ void GameServer::executionThread() {
   sf::Clock stepClock, tickClock;
 
   while (!mWaitingThreadEnd) {
-    handleIncomingPackets();
+    //handleIncomingPackets();
+    handleIncomingConnections();
 
     stepTime += stepClock.getElapsedTime();
     stepClock.restart();
@@ -77,16 +81,31 @@ void GameServer::executionThread() {
     }
 
     // Sleep to prevent server from consuming 100% CPU
-    sf::sleep(sf::milliseconds(100));
+    sf::sleep(sf::milliseconds(500));
   }
+}
+
+void GameServer::startGame() {
+  mGameStarted = true;
+  sf::Packet packet;
+  packet << static_cast<sf::Int32>(Server::GameStarted);
+  packet << mGameStarted;
+  sendToAll(packet);
 }
 
 void GameServer::tick(){
   // updateClientState();
+  if ((mConnectedPlayers >= mGameStartPlayerCount) && !mGameStarted) {
+    cout << "More than 2 players connect, game can be started" << endl;
+    cout << "ConnectedPlayers: " << mConnectedPlayers << endl;
+    cout << "gamestarted: " << mGameStarted << endl;
+    startGame();
+  }
 }
 
 void GameServer::broadcastMessage(const std::string& message)
 {
+  cout << "borad cast message: " << message << endl;
   for (std::size_t i = 0; i < mConnectedPlayers; ++i)
   {
     if (mPeers[i]->ready)
@@ -107,6 +126,14 @@ void GameServer::handleIncomingPacket(){
 
 }
 
+void GameServer::sendToAll(sf::Packet& packet) {
+  for(PeerPtr& peer : mPeers) {
+    if (peer->ready) {
+      peer->socket.send(packet);
+    }
+  }
+}
+
 sf::Time GameServer::now() const {
   return mClock.getElapsedTime();
 }
@@ -117,6 +144,8 @@ void GameServer::handleIncomingConnections(){
   }
 
   if (mListenerSocket.accept(mPeers[mConnectedPlayers]->socket) == sf::TcpListener::Done) {
+    cout << "player connected" << endl;
+
     sf::Packet packet;
 
     // send message
@@ -128,7 +157,9 @@ void GameServer::handleIncomingConnections(){
     mConnectedPlayers++;
 
     if (mConnectedPlayers >= mMaxConnectedPlayers) {
+      cout << "Reached max number of players. Stop listening." << endl;
       setListening(false);
+
     } else { // add a new waiting peer
       mPeers.push_back(PeerPtr(new RemotePeer()));
     }

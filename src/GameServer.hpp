@@ -8,6 +8,7 @@
 #include <SFML/Network/TcpSocket.hpp>
 
 #include <vector>
+#include <memory>
 
 class GameServer {
 public:
@@ -21,16 +22,21 @@ private:
   void handleIncomingConnections();
   void setListening(bool enable);
   void broadcastMessage(const std::string& message);
+  void sendToAll(sf::Packet& packet);
+  void startGame();
+  void assignTurns();
   sf::Time now() const;
 
 private:
   sf::Thread mThread;
-  sf::Clock  mClock;
+  sf::Clock mClock;
   bool mWaitingThreadEnd;
   sf::TcpListener mListenerSocket;
   bool mIsListening;
   std::size_t mMaxConnectedPlayers;
   std::size_t mConnectedPlayers;
+  bool mGameStarted;
+  const unsigned long mGameStartPlayerCount;
 
   struct RemotePeer {
     RemotePeer();

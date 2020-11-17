@@ -34,7 +34,18 @@
 Function signature
 bool has_won(int (*board)[19][19], stone_color, stone_position_x, cord_y) const
 
-   
+## Online multiplayer mode
+
+- choose host or client (implement GUI)
+- wait till at last two player joins the session
+- disable event capture
+- choose turn: who starts first
+  - randomise
+- start game
+- when player's turn, enable event capture
+- update after each player move
+- announce winner
+
 
 # TODO
 

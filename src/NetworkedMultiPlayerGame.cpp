@@ -1,4 +1,4 @@
-#include "NetworkedMultiPlayerGame.hpp"
+#include "NetworkedMultiplayerGame.hpp"
 
 #include <iostream>
 #include <SFML/Network/IpAddress.hpp>
@@ -27,6 +27,7 @@ sf::IpAddress getAddressFromFile()
 
 NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   : mCellSize(40)
+  , TimePerFrame(sf::seconds(1.f/60.f)) // make it much slower than 60 fps as fast update is not necessary
   , mCurrentTurn(FIRST)
   , mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
                           "Gomoku",
@@ -72,19 +73,26 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
 
   // networking
   mBroadcastText.setFont(mMainFont);
-  mBroadcastText.setPosition(1024.f / 2, 100.f);
+  mBroadcastText.setPosition(5.f, 5.f);
+  mBroadcastText.setCharacterSize(40);
+  mBroadcastText.setFillColor(sf::Color::Red);
 
   // game server
   // if host
   sf::IpAddress ip;
   if (isHost) {
+    cout << "This instance is the host, spawining the game server" << endl;
     mGameServer.reset(new GameServer());
     ip = "127.0.0.1";
   } else {
     ip = getAddressFromFile();
   }
 
+  cout << "attempting to connect to host" << endl;
   if (mSocket.connect(ip, ServerPort, sf::seconds(5.f)) == sf::TcpSocket::Done) {
+    cout << "Successfully connected to the server" << endl;
+    cout << "ip: " << ip << endl;
+    cout << "port: " << ServerPort << endl;
     mConnected = true;
   } else {
     // handle failed connection
@@ -364,10 +372,88 @@ string NetworkedMultiplayerGame::getWinnerStr (int stone) {
   }
 };
 
-void NetworkedMultiplayerGame::update () {
+// network
+void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
+  switch (packetType) {
+    case Server::BroadcastMessage: {
+      std::string message;
+      packet >> message;
+
+      cout << "Received broadcast message: " << message << endl;
+
+      mBroadcasts.push_back(message);
+
+      // Display if immediately if only one message
+      if (mBroadcasts.size() == 1) {
+        cout << "Only one message displaying immediately: " << endl;
+        cout << "message: " << mBroadcasts.front() << endl;
+        mBroadcastText.setString(mBroadcasts.front());
+
+        mBroadcastElapsedTime = sf::Time::Zero;
+      }
+    } break;
+
+    case Server::GameStarted: {
+      cout << "Game started packet received" << endl;
+      packet >> mGameStarted;
+
+      cout << "mGameStarted: " << mGameStarted << endl;
+    } break;
+  }
+}
+
+void NetworkedMultiplayerGame::updateBroadcastMessage(sf::Time elapsedTime){
+  if (mBroadcasts.empty()) {
+    return;
+  }
+
+  mBroadcastElapsedTime += elapsedTime;
+  if (mBroadcastElapsedTime > sf::seconds(2.5f)) {
+    // remove message if expired
+    mBroadcasts.erase(mBroadcasts.begin());
+
+    // Show next broadcast message if any
+    if (!mBroadcasts.empty()) {
+      mBroadcastText.setString(mBroadcasts.front());
+      mBroadcastElapsedTime = sf::Time::Zero;
+    }
+  }
+
+}
+
+void NetworkedMultiplayerGame::update (sf::Time dt) {
+  if (mConnected) {
+    // handle messages from server that may have arrived
+    sf::Packet packet;
+    if (mSocket.receive(packet) == sf::Socket::Done) {
+      // mTimeSinceLastPacket = sf::seconds(0.f);
+      sf::Int32 packetType;
+      packet >> packetType;
+      handlePacket(packetType, packet);
+    } else {
+      // handle server timeout
+    }
+
+    // update broadcast message
+    updateBroadcastMessage(dt);
+    // events occuring in the game
+    // send the updates to server
+  } else {
+  }
+}
+
+void NetworkedMultiplayerGame::drawBroadcast() {
+  if (!mBroadcasts.empty()) {
+    mWindow.draw(mBroadcastText);
+  }
+}
+
+void NetworkedMultiplayerGame::render() {
   drawBoard();
   drawStones();
   drawWinnerText();
+
+  drawBroadcast();
   mWindow.display();
 }
 
@@ -389,7 +475,7 @@ void NetworkedMultiplayerGame::processEvents() {
       cout << "current turn: " << mCurrentTurn << endl;
       if (event.mouseButton.button == sf::Mouse::Left && isLegal(ix, iy)) {
         mBoard[ix][iy] = mCurrentTurn;
-        update();
+        update(TimePerFrame);
 
         // check winner first -- after five turns to save some computation?
         if (hasWon(ix, iy)) {
@@ -404,11 +490,21 @@ void NetworkedMultiplayerGame::processEvents() {
       }
     }
   }
-  update();
 }
 
 void NetworkedMultiplayerGame::run() {
+  sf::Clock clock;
+  sf::Time timeSinceLastUpdate = sf::Time::Zero;
+
   while (mWindow.isOpen()) {
-    processEvents();
+    sf::Time dt = clock.restart();
+    timeSinceLastUpdate += dt;
+    while (timeSinceLastUpdate > TimePerFrame) {
+      timeSinceLastUpdate -= TimePerFrame;
+
+      processEvents();
+      update(TimePerFrame);
+    }
+    render();
   }
 }

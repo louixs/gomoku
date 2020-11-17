@@ -33,11 +33,12 @@ class NetworkedMultiplayerGame {
     std::string winnerStr;
     sf::ContextSettings mSettings;
     sf::RenderWindow mWindow;
+    const sf::Time TimePerFrame;
     bool mGameStarted;
-    bool mIsHost;
 
   // for networking
   private:
+    bool mIsHost;
     std::unique_ptr<GameServer> mGameServer;
     std::vector<std::string> mBroadcasts;
     sf::Text mBroadcastText;
@@ -54,8 +55,13 @@ class NetworkedMultiplayerGame {
     std::string getWinnerStr(int stone);
     bool hasWon(int x, int y);
     void processEvents();
-    void update();
+    void update(sf::Time dt);
     void render();
+
+    // networking
+    void handlePacket(sf::Int32 packetType, sf::Packet& packet);
+    void updateBroadcastMessage(sf::Time elapsedTime);
+    void drawBroadcast();
 };
 
 
