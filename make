@@ -1,1 +1,2 @@
-g++ -std=c++17 -c main.cpp Game.cpp && g++ main.o -o ../game -lsfml-graphics -lsfml-window -lsfml-system && rm main.o Game.o
+// Saving working compilation command
+g++ -std=c++17 -c main.cpp LocalGame.cpp GameServer.cpp && g++ GameServer.o main.o -o ../game -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network && rm *.o

@@ -1,6 +1,7 @@
-#include "Game.cpp"
+#include "LocalGame.cpp"
 
 int main() {
-  Game game;
-  game.run();
+  // select game mode
+  LocalGame localGame;
+  localGame.run();
 }

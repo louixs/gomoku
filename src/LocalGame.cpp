@@ -1,11 +1,12 @@
-#include "Game.hpp"
+#include "LocalGame.hpp"
 #include <iostream>
+
 using namespace std;
 
-Game::Game()
-  : mCellSize(40),
-    mCurrentTurn(FIRST),
-    mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
+LocalGame::LocalGame()
+  : mCellSize(40)
+  , mCurrentTurn(FIRST)
+  , mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
                           "Gomoku",
                           sf::Style::Default,
                           mSettings)
@@ -33,18 +34,18 @@ Game::Game()
                        1.0*mCellSize / mWhiteStone.getLocalBounds().height);
 
   // init winner text
-  if (!mWinnerTextFont.loadFromFile("assets/noto_sans.otf"))
+  if (!mMainFont.loadFromFile("assets/noto_sans.otf"))
   {
     cout << "font didn't load!" << endl;
     // error...
   }
-  mWinnerText.setFont(mWinnerTextFont);
+  mWinnerText.setFont(mMainFont);
   mWinnerText.setPosition(5.f, 5.f);
   mWinnerText.setCharacterSize(24);
   mWinnerText.setFillColor(sf::Color::Red);
 }
 
-void Game::drawBoard () {
+void LocalGame::drawBoard () {
   mWindow.clear(sf::Color(255,207,97));
   float midCell = 1.0 * mCellSize / 2;
 
@@ -82,7 +83,7 @@ void Game::drawBoard () {
   };
 }
 
-void Game::drawStones () {
+void LocalGame::drawStones () {
   // Note that this doesn't work if window is resized!!
   for (int x = 0; x < mBoardSize; x++) {
     for (int y = 0; y < mBoardSize; y++) {
@@ -98,12 +99,12 @@ void Game::drawStones () {
   }
 }
 
-void Game::drawWinnerText() {
+void LocalGame::drawWinnerText() {
   mWindow.draw(mWinnerText);
 }
 
 // TODO: refactor!
-bool Game::hasWon(int x, int y) {
+bool LocalGame::hasWon(int x, int y) {
 
   int total_count = 0;
   int current_color = 0;
@@ -289,11 +290,11 @@ bool Game::hasWon(int x, int y) {
   return false;
 };
 
-bool Game::isLegal(int x, int y){
+bool LocalGame::isLegal(int x, int y){
   return mBoard[x][y] == 0 || false;
 };
 
-void Game::changeTurn () {
+void LocalGame::changeTurn () {
   if (mCurrentTurn == FIRST) {
     mCurrentTurn = SECOND;
   } else {
@@ -301,7 +302,7 @@ void Game::changeTurn () {
   }
 }
 
-string Game::getWinnerStr (int stone) {
+string LocalGame::getWinnerStr (int stone) {
   switch(stone) {
     case 1:
       return "Black";
@@ -315,14 +316,14 @@ string Game::getWinnerStr (int stone) {
   }
 };
 
-void Game::update () {
+void LocalGame::update () {
   drawBoard();
   drawStones();
   drawWinnerText();
   mWindow.display();
 }
 
-void Game::processEvents() {
+void LocalGame::processEvents() {
   sf::Event event;
   while (mWindow.pollEvent(event)) {
     if (event.type == sf::Event::Closed) {
@@ -358,7 +359,7 @@ void Game::processEvents() {
   update();
 }
 
-void Game::run() {
+void LocalGame::run() {
   while (mWindow.isOpen()) {
     processEvents();
   }
