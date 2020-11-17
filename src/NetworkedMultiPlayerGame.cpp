@@ -457,14 +457,9 @@ void NetworkedMultiplayerGame::render() {
   mWindow.display();
 }
 
-void NetworkedMultiplayerGame::processEvents() {
+void NetworkedMultiplayerGame::handleInput() {
   sf::Event event;
-  while (mWindow.pollEvent(event)) {
-    if (event.type == sf::Event::Closed) {
-      mWindow.close();
-    };
-
-    if (event.type == sf::Event::MouseButtonPressed) {
+  if (event.type == sf::Event::MouseButtonPressed) {
       int ix = event.mouseButton.x / mCellSize;
       int iy = event.mouseButton.y / mCellSize;
       cout << "Button pressed" << endl;
@@ -488,6 +483,19 @@ void NetworkedMultiplayerGame::processEvents() {
       } else {
         cout << "Cannot place your stone there, try again" << endl;
       }
+    }
+}
+
+void NetworkedMultiplayerGame::processEvents() {
+  sf::Event event;
+  while (mWindow.pollEvent(event)) {
+    if (event.type == sf::Event::Closed) {
+      mWindow.close();
+    };
+
+    if (mGameStarted) {
+      cout << "Game started, inputs are handled now" << endl;
+      handleInput();
     }
   }
 }

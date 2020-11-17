@@ -54,6 +54,7 @@ class NetworkedMultiplayerGame {
     void drawWinnerText();
     std::string getWinnerStr(int stone);
     bool hasWon(int x, int y);
+    void handleInput();
     void processEvents();
     void update(sf::Time dt);
     void render();
