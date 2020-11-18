@@ -16,7 +16,10 @@ namespace Server
     PlayerConnect,
     PlayerDisconnect,
     //AcceptCoopPartner,
-    UpdateClientState, // turn, position x, position y
+    PositionUpdate, // position x, position y
+    TurnUpdate,
+    WinnerUpdate,
+    UpdateClientState,
     PlayerData
   };
 }

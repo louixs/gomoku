@@ -104,10 +104,9 @@ void GameServer::startGame() {
 
 void GameServer::tick(){
   //updateClientState();
+
   if ((mConnectedPlayers >= mGameStartPlayerCount) && !mGameStarted) {
-    cout << "More than 2 players connect, game can be started" << endl;
-    cout << "ConnectedPlayers: " << mConnectedPlayers << endl;
-    cout << "gamestarted: " << mGameStarted << endl;
+    broadcastMessage("All players have connected. Game starts now!");
     startGame();
   }
 }
@@ -150,36 +149,62 @@ void GameServer::changeTurn () {
   }
 }
 
+void GameServer::sendTurnUpdate () {
+  cout << "Send turn update" << endl;
+  sf::Packet packet;
+  packet << static_cast<sf::Int32>(Server::TurnUpdate);
+  packet << mCurrentTurn;
+  sendToAll(packet);
+}
+
+void GameServer::sendWinner (const mTurns& currentTurn) {
+  cout << "Send winner!" << endl;
+  sf::Packet packet;
+  packet << static_cast<sf::Int32>(Server::WinnerUpdate);
+  packet << currentTurn;
+  sendToAll(packet);
+}
+
 void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingPeer){
   sf::Int32 packetType;
   packet >> packetType;
 
   switch (packetType) {
-    case Client::PositionUpdate: {
-      sf::Int32 currentTurn;
+    case Client::PositionUpdate: { // improve naming
       int x;
       int y;
 
-      packet >> currentTurn;
       packet >> x;
       packet >> y;
-      cout << "position update received" << endl;
-      cout << "ct" << currentTurn << endl;
+      cout << "position update received!" << endl;
       cout << "x" << x << endl;
       cout << "y" << y << endl;
 
-      // change turn and send position + current turn to clients
-      changeTurn();
-
+      // Update clients with new stone positions
       {
-        cout << "Sending updates to clients" << endl;
+        cout << "Sending position update" << endl;
         sf::Packet packet;
-        packet << static_cast<sf::Int32>(Server::UpdateClientState);
-        packet << static_cast<sf::Int32>(mCurrentTurn);
+        packet << static_cast<sf::Int32>(Server::PositionUpdate);
         packet << x;
         packet << y;
         sendToAll(packet);
       }
+
+      // update server side board
+      mBoard[x][y] = mCurrentTurn;
+
+      // check if anyone has won
+      if (hasWon(x, y)) {
+        // winner is the one that has played at current turn
+        sendWinner(mCurrentTurn);
+        
+      } else {
+        // otherwise change turn and send the new turn to clients
+        changeTurn();
+        sendTurnUpdate();
+      }
+
+
     } break;
   }
 }
@@ -231,3 +256,190 @@ void GameServer::handleIncomingConnections(){
     }
   }
 }
+
+// TODO: refactor!
+bool GameServer::hasWon(int x, int y) {
+
+  int total_count = 0;
+  int current_color = 0;
+
+  // VERTICAL check
+  // count up
+  int y1 = y;
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    y1--;
+  } while (y1 > 0 && current_color == mCurrentTurn);
+
+  // keep checking if the function hasn't exited
+  // count down
+  // reset params
+  y1 = y;
+  // avoid double count
+  total_count = total_count - 1;
+
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x][y1];
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+    y1++;
+
+  } while (y1 < mBoardSize && current_color == mCurrentTurn);
+
+  // Horizontal check
+  // reset params
+  int x1 = x;
+  total_count = 0;
+
+  // check left
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x1][y];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    x1--;
+  } while (x1 > 0 && current_color == mCurrentTurn);
+
+  // check right
+  // reset vars
+  x1 = x;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  // check right
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x1][y];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    x1++;
+  } while (x1 < mBoardSize && current_color == mCurrentTurn);
+
+  // DIAGONAL
+
+  // reset vars
+  x1 = x;
+  y1 = y;
+  total_count = 0;
+
+  // 1. LEFT UP RIGHT DOWN
+  // check left up
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    x1--;
+    y1--;
+  } while (x1 > 0 && y1 > 0 && current_color == mCurrentTurn);
+
+  // check right down
+  // reset vars
+  x1 = x;
+  y1 = y;
+
+  // avoid double count
+  total_count = total_count - 1;
+
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    x1++;
+    y1++;
+  } while (x1 < mBoardSize && y < mBoardSize && current_color == mCurrentTurn);
+
+
+  // 2. LEFT TO RIGHT UP
+  // reset vars
+  x1 = x;
+  y1 = y;
+  total_count = 0;
+
+  // check left down
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    x1--;
+    y1++;
+  } while (x1 > 0 && y < mBoardSize && current_color == mCurrentTurn);
+
+  // right up
+  // reset vars
+  x1 = x;
+  y1 = y;
+
+  total_count = total_count - 1;
+
+  do {
+    if (total_count == 5) {
+      return true;
+    }
+
+    current_color = mBoard[x1][y1];
+    // if the current color matches the color to check
+    // increment the total count
+    if (current_color == mCurrentTurn) {
+      total_count++;
+    }
+
+    x1++;
+    y1--;
+  } while (x1 < mBoardSize && y > 0 && current_color == mCurrentTurn);
+
+  return false;
+};

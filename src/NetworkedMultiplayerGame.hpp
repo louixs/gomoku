@@ -29,6 +29,7 @@ class NetworkedMultiplayerGame {
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
     sf::Font mMainFont;
+    int mWinner;
     sf::Text mWinnerText;
     std::string winnerStr;
     sf::ContextSettings mSettings;
@@ -50,8 +51,6 @@ class NetworkedMultiplayerGame {
 
   private:
     inline bool isLegal(int x, int y);
-    inline void changeTurn();
-    void setTurn();
     void drawBoard();
     void drawStones();
     void drawWinnerText();
@@ -66,7 +65,7 @@ class NetworkedMultiplayerGame {
     void handlePacket(sf::Int32 packetType, sf::Packet& packet);
     void updateBroadcastMessage(sf::Time elapsedTime);
     void drawBroadcast();
-    void sendPositionUpdates(turns& mCurrentTurn, int x, int y);
+    void sendPositionUpdates(int x, int y);
 };
 
 

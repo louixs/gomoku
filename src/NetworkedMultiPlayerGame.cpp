@@ -38,6 +38,7 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   , mIsHost(isHost)
   , mGameStarted(false)
   , mIsTurn(false)
+  , mWinner(0)
 {
   mSettings.antialiasingLevel = 8;
   // load stone textures
@@ -160,204 +161,9 @@ void NetworkedMultiplayerGame::drawWinnerText() {
   mWindow.draw(mWinnerText);
 }
 
-// TODO: refactor!
-bool NetworkedMultiplayerGame::hasWon(int x, int y) {
-
-  int total_count = 0;
-  int current_color = 0;
-
-  // VERTICAL check
-  // count up
-  int y1 = y;
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    y1--;
-  } while (y1 > 0 && current_color == mCurrentTurn);
-
-  // keep checking if the function hasn't exited
-  // count down
-  // reset params
-  y1 = y;
-  // avoid double count
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x][y1];
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-    y1++;
-
-  } while (y1 < mBoardSize && current_color == mCurrentTurn);
-
-  // Horizontal check
-  // reset params
-  int x1 = x;
-  total_count = 0;
-
-  // check left
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-  } while (x1 > 0 && current_color == mCurrentTurn);
-
-  // check right
-  // reset vars
-  x1 = x;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  // check right
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-  } while (x1 < mBoardSize && current_color == mCurrentTurn);
-
-  // DIAGONAL
-
-  // reset vars
-  x1 = x;
-  y1 = y;
-  total_count = 0;
-
-  // 1. LEFT UP RIGHT DOWN
-  // check left up
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-    y1--;
-  } while (x1 > 0 && y1 > 0 && current_color == mCurrentTurn);
-
-  // check right down
-  // reset vars
-  x1 = x;
-  y1 = y;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-    y1++;
-  } while (x1 < mBoardSize && y < mBoardSize && current_color == mCurrentTurn);
-
-
-  // 2. LEFT TO RIGHT UP
-  // reset vars
-  x1 = x;
-  y1 = y;
-  total_count = 0;
-
-  // check left down
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-    y1++;
-  } while (x1 > 0 && y < mBoardSize && current_color == mCurrentTurn);
-
-  // right up
-  // reset vars
-  x1 = x;
-  y1 = y;
-
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-    y1--;
-  } while (x1 < mBoardSize && y > 0 && current_color == mCurrentTurn);
-
-  return false;
-};
-
 bool NetworkedMultiplayerGame::isLegal(int x, int y){
   return mBoard[x][y] == 0 || false;
 };
-
-void NetworkedMultiplayerGame::changeTurn () {
-  if (mCurrentTurn == FIRST) {
-    mCurrentTurn = SECOND;
-  } else {
-    mCurrentTurn = FIRST;
-  }
-}
 
 string NetworkedMultiplayerGame::getWinnerStr (int stone) {
   switch(stone) {
@@ -372,10 +178,6 @@ string NetworkedMultiplayerGame::getWinnerStr (int stone) {
       break;
   }
 };
-
-void NetworkedMultiplayerGame::setTurn () {
-    mIsTurn = mPlayerTurn == mCurrentTurn;
-}
 
 // network
 void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
@@ -403,19 +205,15 @@ void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& pa
       cout << "Game started packet received" << endl;
     } break;
 
-    case Server::UpdateClientState: {
-      cout << "received client update" << endl;
-      sf::Int32 currentTurn;
+    case Server::PositionUpdate: {
+      cout << "Received position update from the server" << endl;
       int x;
       int y;
-      packet >> currentTurn;
       packet >> x;
       packet >> y;
-      mCurrentTurn = (turns)currentTurn;
       // update board
-      mBoard[x][y] = currentTurn;
+      mBoard[x][y] = mCurrentTurn;
       // determine whether it's the turn for this instance
-      setTurn();
     } break;
 
     case Server::PlayerData: {
@@ -424,7 +222,20 @@ void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& pa
       int playerTurn;
       packet >> playerTurn;
       mPlayerTurn = (turns)playerTurn;
-      setTurn();
+    } break;
+
+    case Server::TurnUpdate: {
+      cout << "Turn update received" << endl;
+      sf::Int32 currentTurn;
+      packet >> currentTurn;
+      mCurrentTurn = (turns)currentTurn;
+    } break;
+
+    case Server::WinnerUpdate: {
+      cout << "Winner update received" << endl;
+      sf::Int32 winner;
+      packet >> winner;
+      mWinner = winner;
     } break;
   }
 }
@@ -465,6 +276,11 @@ void NetworkedMultiplayerGame::update (sf::Time dt) {
     updateBroadcastMessage(dt);
     // events occuring in the game
     // send the updates to server
+
+    if (mWinner != 0) {
+      winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
+      mWinnerText.setString(winnerStr);
+    }
   } else {
   }
 }
@@ -484,10 +300,9 @@ void NetworkedMultiplayerGame::render() {
   mWindow.display();
 }
 
-void NetworkedMultiplayerGame::sendPositionUpdates(turns& mCurrentTurn, int x, int y) {
+void NetworkedMultiplayerGame::sendPositionUpdates(int x, int y) {
   sf::Packet packet;
   packet << static_cast<sf::Int32>(Client::PositionUpdate);
-  packet << static_cast<sf::Int32>(mCurrentTurn);
   packet << x;
   packet << y;
   cout << "Sending position updates" << endl;
@@ -505,15 +320,16 @@ void NetworkedMultiplayerGame::handleInput(sf::Event event) {
       cout << "iy: " << iy << endl;
       cout << "current turn: " << mCurrentTurn << endl;
       if (event.mouseButton.button == sf::Mouse::Left && isLegal(ix, iy)) {
+        cout << "current turn right after clicking: " << mCurrentTurn << endl;
         mBoard[ix][iy] = mCurrentTurn;
-        sendPositionUpdates(mCurrentTurn, ix, iy);
+        sendPositionUpdates(ix, iy);
         update(TimePerFrame);
 
         // check winner first -- after five turns to save some computation?
-        if (hasWon(ix, iy)) {
-          winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
-          mWinnerText.setString(winnerStr);
-        };
+        // if (hasWon(ix, iy)) {
+        //   winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
+        //   mWinnerText.setString(winnerStr);
+        // };
       } else {
         cout << "Cannot place your stone there, try again" << endl;
       }
@@ -526,8 +342,8 @@ void NetworkedMultiplayerGame::processEvents() {
     if (event.type == sf::Event::Closed) {
       mWindow.close();
     };
-
-    if (mGameStarted && mIsTurn) {
+    bool isTurn = mPlayerTurn == mCurrentTurn;
+    if (mGameStarted && isTurn) {
       handleInput(event);
     }
   }
