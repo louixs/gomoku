@@ -1,5 +1,5 @@
 #include "LocalGame.cpp"
-#include "NetworkedMultiplayerGame.cpp"
+#include "NetworkedMultiPlayerGame.cpp"
 
 namespace {
   bool isLocalGame() {
