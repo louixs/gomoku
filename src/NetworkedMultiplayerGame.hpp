@@ -35,7 +35,8 @@ class NetworkedMultiplayerGame {
     sf::RenderWindow mWindow;
     const sf::Time TimePerFrame;
     bool mGameStarted;
-
+    turns mPlayerTurn;
+        
   // for networking
   private:
     bool mIsHost;
@@ -45,16 +46,18 @@ class NetworkedMultiplayerGame {
     sf::Time mBroadcastElapsedTime;
     bool mConnected;
     sf::TcpSocket mSocket;
+    bool mIsTurn;
 
   private:
     inline bool isLegal(int x, int y);
     inline void changeTurn();
+    void setTurn();
     void drawBoard();
     void drawStones();
     void drawWinnerText();
     std::string getWinnerStr(int stone);
     bool hasWon(int x, int y);
-    void handleInput();
+    void handleInput(sf::Event event);
     void processEvents();
     void update(sf::Time dt);
     void render();
@@ -63,6 +66,7 @@ class NetworkedMultiplayerGame {
     void handlePacket(sf::Int32 packetType, sf::Packet& packet);
     void updateBroadcastMessage(sf::Time elapsedTime);
     void drawBroadcast();
+    void sendPositionUpdates(turns& mCurrentTurn, int x, int y);
 };
 
 

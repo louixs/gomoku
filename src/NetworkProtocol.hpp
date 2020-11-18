@@ -16,21 +16,22 @@ namespace Server
     PlayerConnect,
     PlayerDisconnect,
     //AcceptCoopPartner,
-    UpdateClientState,
+    UpdateClientState, // turn, position x, position y
+    PlayerData
   };
 }
 
 namespace Client
 {
-	// Packets originated in the client
-	enum PacketType
-	{
-		PlayerEvent,
-		//RequestCoopPartner,
-		PositionUpdate,
-		GameEvent,
-		Quit
-	};
+    // Packets originated in the client
+    enum PacketType
+    {
+      //PlayerEvent,
+      //RequestCoopPartner,
+      PositionUpdate, // turn, position.x, position.y
+      GameEvent,
+      Quit
+    };
 }
 
 

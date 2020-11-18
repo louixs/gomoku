@@ -14,6 +14,7 @@ GameServer::RemotePeer::RemotePeer()
 
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
+, mCurrentTurn(FIRST)
 , mGameStarted(false)
 , mGameStartPlayerCount(2)
 , mIsListening(false)
@@ -61,7 +62,7 @@ void GameServer::executionThread() {
   sf::Clock stepClock, tickClock;
 
   while (!mWaitingThreadEnd) {
-    //handleIncomingPackets();
+    handleIncomingPackets();
     handleIncomingConnections();
 
     stepTime += stepClock.getElapsedTime();
@@ -85,6 +86,13 @@ void GameServer::executionThread() {
   }
 }
 
+void GameServer::updateClientState() {
+  sf::Packet packet;
+  packet << static_cast<sf::Int32>(Server::UpdateClientState);
+  packet << static_cast<sf::Int32>(mCurrentTurn);
+  sendToAll(packet);
+}
+
 void GameServer::startGame() {
   mGameStarted = true;
   sf::Packet packet;
@@ -93,8 +101,9 @@ void GameServer::startGame() {
   sendToAll(packet);
 }
 
+
 void GameServer::tick(){
-  // updateClientState();
+  //updateClientState();
   if ((mConnectedPlayers >= mGameStartPlayerCount) && !mGameStarted) {
     cout << "More than 2 players connect, game can be started" << endl;
     cout << "ConnectedPlayers: " << mConnectedPlayers << endl;
@@ -120,10 +129,59 @@ void GameServer::broadcastMessage(const std::string& message)
 }
 
 void GameServer::handleIncomingPackets(){
+  for(PeerPtr& peer : mPeers) {
+    if (peer->ready) {
+      sf::Packet packet;
+      while (peer->socket.receive(packet) == sf::Socket::Done) {
+        handleIncomingPacket(packet, *peer);
+        peer->lastPacketTime = now();
+        packet.clear();
+      }
+
+    }
+  }
 }
 
-void GameServer::handleIncomingPacket(){
+void GameServer::changeTurn () {
+  if (mCurrentTurn == FIRST) {
+    mCurrentTurn = SECOND;
+  } else {
+    mCurrentTurn = FIRST;
+  }
+}
 
+void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingPeer){
+  sf::Int32 packetType;
+  packet >> packetType;
+
+  switch (packetType) {
+    case Client::PositionUpdate: {
+      sf::Int32 currentTurn;
+      int x;
+      int y;
+
+      packet >> currentTurn;
+      packet >> x;
+      packet >> y;
+      cout << "position update received" << endl;
+      cout << "ct" << currentTurn << endl;
+      cout << "x" << x << endl;
+      cout << "y" << y << endl;
+
+      // change turn and send position + current turn to clients
+      changeTurn();
+
+      {
+        cout << "Sending updates to clients" << endl;
+        sf::Packet packet;
+        packet << static_cast<sf::Int32>(Server::UpdateClientState);
+        packet << static_cast<sf::Int32>(mCurrentTurn);
+        packet << x;
+        packet << y;
+        sendToAll(packet);
+      }
+    } break;
+  }
 }
 
 void GameServer::sendToAll(sf::Packet& packet) {
@@ -147,13 +205,21 @@ void GameServer::handleIncomingConnections(){
     cout << "player connected" << endl;
 
     sf::Packet packet;
-
+    // assign player turn
+    int playerTurn = mConnectedPlayers + 1;
     // send message
     // player connectd
     broadcastMessage("New player Connected!");
-
+    // assign stone
+    mPeers[mConnectedPlayers]->turn = playerTurn;
     mPeers[mConnectedPlayers]->ready = true;
     mPeers[mConnectedPlayers]->lastPacketTime = now(); // prevent initial timeouts
+
+    // send user data to client
+    packet << static_cast<sf::Int32>(Server::PlayerData);
+    packet << playerTurn;
+    mPeers[mConnectedPlayers]->socket.send(packet);
+
     mConnectedPlayers++;
 
     if (mConnectedPlayers >= mMaxConnectedPlayers) {

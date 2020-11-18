@@ -37,6 +37,7 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   , mGameServer(nullptr)
   , mIsHost(isHost)
   , mGameStarted(false)
+  , mIsTurn(false)
 {
   mSettings.antialiasingLevel = 8;
   // load stone textures
@@ -372,6 +373,10 @@ string NetworkedMultiplayerGame::getWinnerStr (int stone) {
   }
 };
 
+void NetworkedMultiplayerGame::setTurn () {
+    mIsTurn = mPlayerTurn == mCurrentTurn;
+}
+
 // network
 void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
   switch (packetType) {
@@ -394,10 +399,32 @@ void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& pa
     } break;
 
     case Server::GameStarted: {
-      cout << "Game started packet received" << endl;
       packet >> mGameStarted;
+      cout << "Game started packet received" << endl;
+    } break;
 
-      cout << "mGameStarted: " << mGameStarted << endl;
+    case Server::UpdateClientState: {
+      cout << "received client update" << endl;
+      sf::Int32 currentTurn;
+      int x;
+      int y;
+      packet >> currentTurn;
+      packet >> x;
+      packet >> y;
+      mCurrentTurn = (turns)currentTurn;
+      // update board
+      mBoard[x][y] = currentTurn;
+      // determine whether it's the turn for this instance
+      setTurn();
+    } break;
+
+    case Server::PlayerData: {
+      cout << "Player data packet received" << endl;
+      //sf::Int32 playerTurn;
+      int playerTurn;
+      packet >> playerTurn;
+      mPlayerTurn = (turns)playerTurn;
+      setTurn();
     } break;
   }
 }
@@ -457,8 +484,17 @@ void NetworkedMultiplayerGame::render() {
   mWindow.display();
 }
 
-void NetworkedMultiplayerGame::handleInput() {
-  sf::Event event;
+void NetworkedMultiplayerGame::sendPositionUpdates(turns& mCurrentTurn, int x, int y) {
+  sf::Packet packet;
+  packet << static_cast<sf::Int32>(Client::PositionUpdate);
+  packet << static_cast<sf::Int32>(mCurrentTurn);
+  packet << x;
+  packet << y;
+  cout << "Sending position updates" << endl;
+  mSocket.send(packet);
+}
+
+void NetworkedMultiplayerGame::handleInput(sf::Event event) {
   if (event.type == sf::Event::MouseButtonPressed) {
       int ix = event.mouseButton.x / mCellSize;
       int iy = event.mouseButton.y / mCellSize;
@@ -470,6 +506,7 @@ void NetworkedMultiplayerGame::handleInput() {
       cout << "current turn: " << mCurrentTurn << endl;
       if (event.mouseButton.button == sf::Mouse::Left && isLegal(ix, iy)) {
         mBoard[ix][iy] = mCurrentTurn;
+        sendPositionUpdates(mCurrentTurn, ix, iy);
         update(TimePerFrame);
 
         // check winner first -- after five turns to save some computation?
@@ -477,9 +514,6 @@ void NetworkedMultiplayerGame::handleInput() {
           winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
           mWinnerText.setString(winnerStr);
         };
-
-        // if no winner, change turn
-        changeTurn();
       } else {
         cout << "Cannot place your stone there, try again" << endl;
       }
@@ -493,9 +527,8 @@ void NetworkedMultiplayerGame::processEvents() {
       mWindow.close();
     };
 
-    if (mGameStarted) {
-      cout << "Game started, inputs are handled now" << endl;
-      handleInput();
+    if (mGameStarted && mIsTurn) {
+      handleInput(event);
     }
   }
 }
