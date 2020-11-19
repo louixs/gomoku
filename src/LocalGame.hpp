@@ -22,7 +22,7 @@ class LocalGame {
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
     sf::Font mMainFont;
-    sf::Text mWinnerText;
+    sf::Text mInfoText;
     std::string winnerStr;
     sf::ContextSettings mSettings;
     sf::RenderWindow mWindow;

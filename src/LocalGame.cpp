@@ -39,10 +39,10 @@ LocalGame::LocalGame()
     cout << "font didn't load!" << endl;
     // error...
   }
-  mWinnerText.setFont(mMainFont);
-  mWinnerText.setPosition(5.f, 5.f);
-  mWinnerText.setCharacterSize(24);
-  mWinnerText.setFillColor(sf::Color::Red);
+  mInfoText.setFont(mMainFont);
+  mInfoText.setPosition(5.f, 5.f);
+  mInfoText.setCharacterSize(24);
+  mInfoText.setFillColor(sf::Color::Red);
 }
 
 void LocalGame::drawBoard () {
@@ -100,7 +100,7 @@ void LocalGame::drawStones () {
 }
 
 void LocalGame::drawWinnerText() {
-  mWindow.draw(mWinnerText);
+  mWindow.draw(mInfoText);
 }
 
 // TODO: refactor!
@@ -346,7 +346,7 @@ void LocalGame::processEvents() {
         // check winner first -- after five turns to save some computation?
         if (hasWon(ix, iy)) {
           winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
-          mWinnerText.setString(winnerStr);
+          mInfoText.setString(winnerStr);
         };
 
         // if no winner, change turn

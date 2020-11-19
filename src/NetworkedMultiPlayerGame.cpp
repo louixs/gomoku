@@ -68,10 +68,10 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
     cout << "font didn't load!" << endl;
     // error...
   }
-  mWinnerText.setFont(mMainFont);
-  mWinnerText.setPosition(5.f, 5.f);
-  mWinnerText.setCharacterSize(24);
-  mWinnerText.setFillColor(sf::Color::Red);
+  mInfoText.setFont(mMainFont);
+  mInfoText.setPosition(5.f, 5.f);
+  mInfoText.setCharacterSize(24);
+  mInfoText.setFillColor(sf::Color::Red);
 
   // networking
   mBroadcastText.setFont(mMainFont);
@@ -158,7 +158,7 @@ void NetworkedMultiplayerGame::drawStones () {
 }
 
 void NetworkedMultiplayerGame::drawWinnerText() {
-  mWindow.draw(mWinnerText);
+  mWindow.draw(mInfoText);
 }
 
 bool NetworkedMultiplayerGame::isLegal(int x, int y){
@@ -279,7 +279,7 @@ void NetworkedMultiplayerGame::update (sf::Time dt) {
 
     if (mWinner != 0) {
       winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
-      mWinnerText.setString(winnerStr);
+      mInfoText.setString(winnerStr);
     }
   } else {
   }
@@ -328,7 +328,7 @@ void NetworkedMultiplayerGame::handleInput(sf::Event event) {
         // check winner first -- after five turns to save some computation?
         // if (hasWon(ix, iy)) {
         //   winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
-        //   mWinnerText.setString(winnerStr);
+        //   mInfoText.setString(winnerStr);
         // };
       } else {
         cout << "Cannot place your stone there, try again" << endl;
@@ -344,7 +344,10 @@ void NetworkedMultiplayerGame::processEvents() {
     };
     bool isTurn = mPlayerTurn == mCurrentTurn;
     if (mGameStarted && isTurn) {
+      mInfoText.setString("Your turn");
       handleInput(event);
+    } else {
+      mInfoText.setString("Other player's turn");
     }
   }
 }

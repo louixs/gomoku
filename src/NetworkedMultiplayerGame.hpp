@@ -30,7 +30,7 @@ class NetworkedMultiplayerGame {
     sf::Sprite mWhiteStone;
     sf::Font mMainFont;
     int mWinner;
-    sf::Text mWinnerText;
+    sf::Text mInfoText;
     std::string winnerStr;
     sf::ContextSettings mSettings;
     sf::RenderWindow mWindow;
