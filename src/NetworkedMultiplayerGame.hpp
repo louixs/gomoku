@@ -1,9 +1,14 @@
+#include "ResourceHolder.hpp"
+#include "ResourceIdentifiers.hpp"
 #include "NetworkProtocol.hpp"
 #include "GameServer.hpp"
+
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
 #include "GameServer.hpp"
+
 #include <string>
 #include <vector>
 
@@ -24,8 +29,7 @@ class NetworkedMultiplayerGame {
     int mBoard[mBoardSize][mBoardSize] = { 0 };
     enum turns { FIRST = BLACK, SECOND = WHITE };
     turns mCurrentTurn;
-    sf::Texture mBlackStoneTexture;
-    sf::Texture mWhiteStoneTexture;
+    TextureHolder mTextures;
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
     sf::Font mMainFont;
@@ -50,6 +54,8 @@ class NetworkedMultiplayerGame {
     bool mIsTurn;
 
   private:
+    void loadTextures();
+    void initStones();
     inline bool isLegal(int x, int y);
     void drawBoard();
     void drawStones();

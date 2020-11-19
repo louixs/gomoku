@@ -27,7 +27,8 @@ sf::IpAddress getAddressFromFile()
 
 NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   : mCellSize(40)
-  , TimePerFrame(sf::seconds(1.f/60.f)) // make it much slower than 60 fps as fast update is not necessary
+  , mTextures()
+  , TimePerFrame(sf::seconds(1.f/5.f))
   , mCurrentTurn(FIRST)
   , mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
                           "Gomoku",
@@ -41,26 +42,7 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   , mWinner(0)
 {
   mSettings.antialiasingLevel = 8;
-  // load stone textures
-  if (!mBlackStoneTexture.loadFromFile("assets/black_stone.bmp")){
-    cout << "failed to load texture" << endl;
-  }
-  mBlackStoneTexture.setSmooth(true);
-
-  if (!mWhiteStoneTexture.loadFromFile("assets/white_stone.bmp")) {
-    cout << "failed to load texture" << endl;
-  }
-  mWhiteStoneTexture.setSmooth(true);
-
-  // set stone sprites
-  mBlackStone.setTexture(mBlackStoneTexture);
-  mWhiteStone.setTexture(mWhiteStoneTexture);
-
-  // set stone scales
-  mBlackStone.setScale(1.0*mCellSize / mBlackStone.getLocalBounds().width,
-                       1.0*mCellSize / mBlackStone.getLocalBounds().height);
-  mWhiteStone.setScale(1.0*mCellSize / mWhiteStone.getLocalBounds().width,
-                       1.0*mCellSize / mWhiteStone.getLocalBounds().height);
+  initStones();
 
   // init winner text
   if (!mMainFont.loadFromFile("assets/noto_sans.otf"))
@@ -101,6 +83,32 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   }
 
   mSocket.setBlocking(false);
+}
+
+void NetworkedMultiplayerGame::loadTextures() {
+  mTextures.load(Textures::BlackStone, "assets/black_stone.bmp");
+  mTextures.load(Textures::WhiteStone, "assets/white_stone.bmp");
+}
+
+void NetworkedMultiplayerGame::initStones() {
+  // load stone textures
+  loadTextures();
+  
+  auto& blackStoneTexture = mTextures.get(Textures::BlackStone);
+  blackStoneTexture.setSmooth(true);
+
+  auto& whiteStoneTexture = mTextures.get(Textures::WhiteStone);
+  whiteStoneTexture.setSmooth(true);
+
+  // set stone sprites
+  mBlackStone.setTexture(blackStoneTexture);
+  mWhiteStone.setTexture(whiteStoneTexture);
+
+  // set stone scales
+  mBlackStone.setScale(1.0*mCellSize / mBlackStone.getLocalBounds().width,
+                       1.0*mCellSize / mBlackStone.getLocalBounds().height);
+  mWhiteStone.setScale(1.0*mCellSize / mWhiteStone.getLocalBounds().width,
+                       1.0*mCellSize / mWhiteStone.getLocalBounds().height);
 }
 
 void NetworkedMultiplayerGame::drawBoard () {
@@ -324,12 +332,6 @@ void NetworkedMultiplayerGame::handleInput(sf::Event event) {
         mBoard[ix][iy] = mCurrentTurn;
         sendPositionUpdates(ix, iy);
         update(TimePerFrame);
-
-        // check winner first -- after five turns to save some computation?
-        // if (hasWon(ix, iy)) {
-        //   winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
-        //   mInfoText.setString(winnerStr);
-        // };
       } else {
         cout << "Cannot place your stone there, try again" << endl;
       }
