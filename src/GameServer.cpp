@@ -51,13 +51,13 @@ void GameServer::executionThread() {
 
   // stepInterval updates the state frequently
   // so the server has the latest game state
-  sf::Time stepInterval = sf::seconds(1.f / 60.f);
+  sf::Time stepInterval = sf::seconds(1.f / 30.f);
   sf::Time stepTime = sf::Time::Zero;
 
   // tick is used to update connected clients
   // involving networking so runs less frequently
   // to avoid sending too many updates to clog network
-  sf::Time tickInterval = sf::seconds(1.f / 20.f);
+  sf::Time tickInterval = sf::seconds(1.f / 10.f);
   sf::Time tickTime = sf::Time::Zero;
   sf::Clock stepClock, tickClock;
 
