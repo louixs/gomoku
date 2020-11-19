@@ -32,7 +32,7 @@ class NetworkedMultiplayerGame {
     TextureHolder mTextures;
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
-    sf::Font mMainFont;
+    FontHolder mFonts;
     int mWinner;
     sf::Text mInfoText;
     std::string winnerStr;

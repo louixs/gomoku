@@ -34,7 +34,7 @@ LocalGame::LocalGame()
                        1.0*mCellSize / mWhiteStone.getLocalBounds().height);
 
   // init winner text
-  if (!mMainFont.loadFromFile("assets/noto_sans.otf"))
+  if (!mMainFont.loadFromFile("assets/InputSerif-Light.ttf"))
   {
     cout << "font didn't load!" << endl;
     // error...

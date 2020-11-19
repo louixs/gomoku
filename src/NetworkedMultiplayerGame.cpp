@@ -44,19 +44,18 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   mSettings.antialiasingLevel = 8;
   initStones();
 
+  // init fonts and texts
+  mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
+  sf::Font& mainFont = mFonts.get(Fonts::Main);
+
   // init winner text
-  if (!mMainFont.loadFromFile("assets/noto_sans.otf"))
-  {
-    cout << "font didn't load!" << endl;
-    // error...
-  }
-  mInfoText.setFont(mMainFont);
+  mInfoText.setFont(mainFont);
   mInfoText.setPosition(5.f, 5.f);
   mInfoText.setCharacterSize(24);
   mInfoText.setFillColor(sf::Color::Red);
 
   // networking
-  mBroadcastText.setFont(mMainFont);
+  mBroadcastText.setFont(mainFont);
   mBroadcastText.setPosition(5.f, 5.f);
   mBroadcastText.setCharacterSize(40);
   mBroadcastText.setFillColor(sf::Color::Red);
