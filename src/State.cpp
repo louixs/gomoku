@@ -2,8 +2,12 @@
 #include "StateStack.hpp"
 
 State::Context::Context(sf::RenderWindow& window,
-                        TextureHolder& texutres,
-                        FontHolder& fonts) {
+                        TextureHolder& textures,
+                        FontHolder& fonts)
+:window(&window)
+, textures(&textures)
+, fonts(&fonts)
+{
 }
 
 State::State(StateStack& stack, Context context)

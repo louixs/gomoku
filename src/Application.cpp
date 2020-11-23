@@ -49,7 +49,6 @@ void Application::run() {
 void Application::processInput() {
   sf::Event event;
 
-  cout << "APPLICATON: processInput" << endl;
   while (mWindow.pollEvent(event)) {
 
     mStateStack.handleEvent(event);
@@ -61,23 +60,17 @@ void Application::processInput() {
 }
 
 void Application::update(sf::Time dt) {
-  cout << "Application::update" << endl;
   mStateStack.update(dt);
 }
 
 void Application::render() {
   mWindow.clear();
-  //cout << "Applicatoin::render draw" << endl;
   mStateStack.draw();
-  //cout << "Applicatoin::render setView" << endl;
-  //mWindow.setView(mWindow.getDefaultView());
-  //cout << "Applicatoin::render display" << endl;
+  mWindow.setView(mWindow.getDefaultView());
   mWindow.display();
 }
 
 void Application::registerStates() {
-  cout << "registering states" << endl;
   mStateStack.registerState<TitleState>(States::Title);
   mStateStack.registerState<MenuState>(States::Menu);
-  cout << "Finished registering states" << endl;
 }

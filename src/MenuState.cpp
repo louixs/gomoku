@@ -26,6 +26,8 @@ MenuState::MenuState(StateStack& stack, Context context)
   exitOption.setFont(font);
   exitOption.setString("Exit");
   centerOrigin(exitOption);
+  exitOption.setPosition(playOption.getPosition() + sf::Vector2f(0.f, 30.f));
+  mOptions.push_back(exitOption);
 
   updateOptionText();
 };
