@@ -15,18 +15,32 @@ MenuState::MenuState(StateStack& stack, Context context)
 
   mBackgroundSprite.setTexture(texture);
 
-  sf::Text playOption;
-  playOption.setFont(font);
-  playOption.setString("Play");
-  centerOrigin(playOption);
-  playOption.setPosition(context.window->getView().getSize() / 2.f);
-  mOptions.push_back(playOption);
+  sf::Text playLocalOption;
+  playLocalOption.setFont(font);
+  playLocalOption.setString("Play");
+  centerOrigin(playLocalOption);
+  playLocalOption.setPosition(context.window->getView().getSize() / 2.f);
+  mOptions.push_back(playLocalOption);
+
+  sf::Text playOnlineClientOption;
+  playOnlineClientOption.setFont(font);
+  playOnlineClientOption.setString("Play Online as Client");
+  centerOrigin(playOnlineClientOption);
+  playOnlineClientOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 30.f));
+  mOptions.push_back(playOnlineClientOption);
+
+  sf::Text playOnlineHostOption;
+  playOnlineHostOption.setFont(font);
+  playOnlineHostOption.setString("Play Online as Host");
+  centerOrigin(playOnlineHostOption);
+  playOnlineHostOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 60.f));
+  mOptions.push_back(playOnlineHostOption);
 
   sf::Text exitOption;
   exitOption.setFont(font);
   exitOption.setString("Exit");
   centerOrigin(exitOption);
-  exitOption.setPosition(playOption.getPosition() + sf::Vector2f(0.f, 30.f));
+  exitOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 90.f));
   mOptions.push_back(exitOption);
 
   updateOptionText();
@@ -53,7 +67,7 @@ bool MenuState::handleEvent(const sf::Event& event) {
   }
 
   if (event.key.code == sf::Keyboard::Return) {
-    if (mOptionIndex == Play) {
+    if (mOptionIndex == PlayLocal) {
       requestStackPop();
       requestStackPush(States::Game);
     } else if (mOptionIndex == Exit) {
