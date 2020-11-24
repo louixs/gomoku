@@ -209,6 +209,11 @@ void GameServer::handleIncomingPacket(sf::Packet& packet,
   packet >> packetType;
 
   switch (packetType) {
+
+    // case Client::Ack: {
+    //   cout << "Received Client::Ack" << endl;
+    // } break;
+
     case Client::Quit: {
       cout << "Received Client::Quit" << endl;
       receivingPeer.timedOut = true;
@@ -271,7 +276,8 @@ void GameServer::handleIncomingConnections(){
   }
 
   if (mListenerSocket.accept(mPeers[mConnectedPlayers]->socket) == sf::TcpListener::Done) {
-    cout << "player connected" << endl;
+    cout << "Player connected." << endl;
+    cout << "Connected from: " << mPeers[mConnectedPlayers]->socket.getRemoteAddress() << endl;
 
     sf::Packet packet;
     // assign player turn

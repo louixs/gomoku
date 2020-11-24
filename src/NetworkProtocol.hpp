@@ -1,7 +1,7 @@
 #ifndef __NETWORKPROTOCOL_H_
 #define __NETWORKPROTOCOL_H_
 
-const unsigned short ServerPort = 52312;
+const unsigned short ServerPort = 53001;
 
 namespace Server
 {
@@ -31,6 +31,7 @@ namespace Client
     {
       //PlayerEvent,
       //RequestCoopPartner,
+      Ack, // client need to send a packet first over the internet connection
       PositionUpdate, // turn, position.x, position.y
       GameEvent,
       Quit
