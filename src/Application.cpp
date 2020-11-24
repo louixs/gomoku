@@ -19,7 +19,8 @@ Application::Application()
           mSettings)
 , mTextures()
 , mFonts()
-, mStateStack(State::Context(mWindow, mTextures, mFonts))
+, mMusic()
+, mStateStack(State::Context(mWindow, mTextures, mFonts, mMusic))
 {
   mSettings.antialiasingLevel = 8;
   mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
@@ -29,6 +30,8 @@ Application::Application()
   registerStates();
 
   mStateStack.pushState(States::Title);
+
+  mMusic.setVolume(25.f);
 }
 
 void Application::run() {
