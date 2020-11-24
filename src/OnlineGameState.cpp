@@ -37,7 +37,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   , mActiveState(true)
   , mIsHost(isHost)
   , mGameStarted(false)
-  , mClientTimeout(sf::seconds(2.f))
+  , mClientTimeout(sf::seconds(60.f))
   , mTimeSinceLastPacket(sf::seconds(0.f))
   , mIsTurn(false)
   , mWinner(0)
@@ -190,6 +190,10 @@ string OnlineGameState::getWinnerStr (int stone) {
 // network
 void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
   switch (packetType) {
+    case Server::PlayerDisconnect: {
+      cout << "Server::PlayerDisconnect received";
+    } break;
+
     case Server::BroadcastMessage: {
       std::string message;
       packet >> message;
@@ -297,6 +301,7 @@ bool OnlineGameState::update (sf::Time dt) {
     }
 
     mTimeSinceLastPacket += dt;
+    
   } else if (mFailedConnectionClock.getElapsedTime() >= sf::seconds(5.f)){
     cout << "OnlineGameState::update timeout, going back to menu" << endl;
     requestStateClear();

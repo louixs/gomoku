@@ -14,7 +14,7 @@ GameServer::RemotePeer::RemotePeer()
 
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
-, mClientTimeoutTime(sf::seconds(3.f))
+, mClientTimeoutTime(sf::seconds(60.f))
 , mCurrentTurn(FIRST)
 , mGameStarted(false)
 , mGameStartPlayerCount(2)
