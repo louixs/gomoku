@@ -1,8 +1,9 @@
 #include "OnlineGameState.hpp"
+#include "MusicPlayer.hpp"
 
-#include <iostream>
 #include <SFML/Network/IpAddress.hpp>
 
+#include <iostream>
 #include <fstream>
 
 using namespace std;
@@ -37,6 +38,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   , mIsTurn(false)
   , mWinner(0)
 {
+  context.music->stop();
   sf::Font& font = context.fonts->get(Fonts::Main);
   sf::Texture& blackStoneTexture = context.textures->get(Textures::BlackStone);
   sf::Texture& whiteStoneTexture = context.textures->get(Textures::WhiteStone);

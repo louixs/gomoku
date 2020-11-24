@@ -1,6 +1,7 @@
 #include "TitleState.hpp"
 #include "Utility.hpp"
 #include "ResourceHolder.hpp"
+#include "MusicPlayer.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 
@@ -15,6 +16,7 @@ TitleState::TitleState(StateStack& stack, Context context)
   mText.setString("Press any key to start");
   centerOrigin(mText);
   mText.setPosition(context.window->getView().getSize() / 2.f);
+  context.music->play(Music::MenuTheme);
 };
 
 void TitleState::draw() {

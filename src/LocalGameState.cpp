@@ -1,5 +1,6 @@
 #include "LocalGameState.hpp"
 #include "ResourceHolder.hpp"
+#include "MusicPlayer.hpp"
 
 #include <iostream>
 
@@ -10,6 +11,7 @@ LocalGameState::LocalGameState(StateStack& stack, Context context)
   , mCellSize(40)
   , mCurrentTurn(FIRST)
 {
+  context.music->stop();
   sf::Font& font = context.fonts->get(Fonts::Main);
   sf::Texture& blackStoneTexture = context.textures->get(Textures::BlackStone);
   sf::Texture& whiteStoneTexture = context.textures->get(Textures::WhiteStone);
