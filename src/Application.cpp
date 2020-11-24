@@ -4,11 +4,12 @@
 #include "TitleState.hpp"
 #include "MenuState.hpp"
 #include "LocalGameState.hpp"
+#include "OnlineGameState.hpp"
 
 #include <iostream>
 using namespace std;
 
-const sf::Time Application::TimePerFrame = sf::seconds(1.f/60.f);
+const sf::Time Application::TimePerFrame = sf::seconds(1.f/5.f);
 
 Application::Application()
 : mCellSize(40)
@@ -78,4 +79,6 @@ void Application::registerStates() {
   mStateStack.registerState<TitleState>(States::Title);
   mStateStack.registerState<MenuState>(States::Menu);
   mStateStack.registerState<LocalGameState>(States::LocalGame);
+  mStateStack.registerState<OnlineGameState>(States::JoinOnlineGame, false);
+  mStateStack.registerState<OnlineGameState>(States::HostOnlineGame, true);
 }

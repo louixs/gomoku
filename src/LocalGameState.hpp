@@ -26,7 +26,6 @@ class LocalGameState : public State {
     sf::Sprite mWhiteStone;
     sf::Text mInfoText;
     std::string winnerStr;
-    sf::ContextSettings mSettings;
 
   private:
     inline bool isLegal(int x, int y);

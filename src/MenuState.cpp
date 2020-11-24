@@ -22,19 +22,19 @@ MenuState::MenuState(StateStack& stack, Context context)
   playLocalOption.setPosition(context.window->getView().getSize() / 2.f);
   mOptions.push_back(playLocalOption);
 
-  sf::Text playOnlineClientOption;
-  playOnlineClientOption.setFont(font);
-  playOnlineClientOption.setString("Play Online as Client");
-  centerOrigin(playOnlineClientOption);
-  playOnlineClientOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 30.f));
-  mOptions.push_back(playOnlineClientOption);
+  sf::Text joinOnlineOption;
+  joinOnlineOption.setFont(font);
+  joinOnlineOption.setString("Join Online Game");
+  centerOrigin(joinOnlineOption);
+  joinOnlineOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 30.f));
+  mOptions.push_back(joinOnlineOption);
 
-  sf::Text playOnlineHostOption;
-  playOnlineHostOption.setFont(font);
-  playOnlineHostOption.setString("Play Online as Host");
-  centerOrigin(playOnlineHostOption);
-  playOnlineHostOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 60.f));
-  mOptions.push_back(playOnlineHostOption);
+  sf::Text hostOnlineOption;
+  hostOnlineOption.setFont(font);
+  hostOnlineOption.setString("Host Online Game");
+  centerOrigin(hostOnlineOption);
+  hostOnlineOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 60.f));
+  mOptions.push_back(hostOnlineOption);
 
   sf::Text exitOption;
   exitOption.setFont(font);
@@ -67,10 +67,19 @@ bool MenuState::handleEvent(const sf::Event& event) {
   }
 
   if (event.key.code == sf::Keyboard::Return) {
-    if (mOptionIndex == PlayLocal) {
+    if (mOptionIndex == PlayLocalGame) {
       requestStackPop();
       requestStackPush(States::LocalGame);
-    } else if (mOptionIndex == Exit) {
+    }
+    else if (mOptionIndex == JoinOnlineGame) {
+      requestStackPop();
+      requestStackPush(States::JoinOnlineGame);
+    }
+    else if (mOptionIndex == HostOnlineGame) {
+      requestStackPop();
+      requestStackPush(States::HostOnlineGame);
+    }
+    else if (mOptionIndex == Exit) {
       requestStackPop();
     }
   }

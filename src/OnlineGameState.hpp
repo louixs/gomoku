@@ -1,47 +1,44 @@
+#ifndef __ONLINEGAMMESTATE_H_
+#define __ONLINEGAMMESTATE_H_
+
+#include "State.hpp"
 #include "ResourceHolder.hpp"
 #include "ResourceIdentifiers.hpp"
 #include "NetworkProtocol.hpp"
 #include "GameServer.hpp"
 
-
 #include <SFML/Graphics.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
-#include "GameServer.hpp"
 
 #include <string>
 #include <vector>
 
-#ifndef __NETWORKEDMULTIPLAYERGAME_H_
-#define __NETWORKEDMULTIPLAYERGAME_H_
-
 #define BLACK (1)
 #define WHITE (2)
 
-class NetworkedMultiplayerGame {
+class OnlineGameState : public State {
   public:
-    NetworkedMultiplayerGame(bool isHost);
-    void run();
+    OnlineGameState(StateStack& stack, Context context, bool isHost);
+    virtual void draw();
+    virtual bool update(sf::Time dt);
+    virtual bool handleEvent(const sf::Event& event);
 
   private:
+    sf::RenderWindow& mWindow;
     int mCellSize;
     static const int mBoardSize = 19;
     int mBoard[mBoardSize][mBoardSize] = { 0 };
     enum turns { FIRST = BLACK, SECOND = WHITE };
     turns mCurrentTurn;
-    TextureHolder mTextures;
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
-    FontHolder mFonts;
     int mWinner;
     sf::Text mInfoText;
     std::string winnerStr;
-    sf::ContextSettings mSettings;
-    sf::RenderWindow mWindow;
-    const sf::Time TimePerFrame;
     bool mGameStarted;
     turns mPlayerTurn;
-        
+
   // for networking
   private:
     bool mIsHost;
@@ -53,27 +50,21 @@ class NetworkedMultiplayerGame {
     sf::TcpSocket mSocket;
     bool mIsTurn;
 
-  private:
-    void loadTextures();
-    void initStones();
+  private:    
     inline bool isLegal(int x, int y);
-    void drawBoard();
-    void drawStones();
-    void drawWinnerText();
+    void handleInput(const sf::Event& event);
+    void drawBoard(sf::RenderWindow& window);
+    void drawStones(sf::RenderWindow& window);
+    void drawWinnerText(sf::RenderWindow& window);
+    void drawBroadcast(sf::RenderWindow& window);
     std::string getWinnerStr(int stone);
     bool hasWon(int x, int y);
-    void handleInput(sf::Event event);
-    void processEvents();
-    void update(sf::Time dt);
-    void render();
 
     // networking
     void handlePacket(sf::Int32 packetType, sf::Packet& packet);
     void updateBroadcastMessage(sf::Time elapsedTime);
-    void drawBroadcast();
     void sendPositionUpdates(int x, int y);
 };
 
 
-
-#endif // __NETWORKEDMULTIPLAYERGAME_H_
+#endif // __ONLINEGAMMESTATE_H_

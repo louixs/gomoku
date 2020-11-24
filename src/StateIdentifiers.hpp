@@ -7,7 +7,8 @@ namespace States {
     Title,
     Menu,
     LocalGame,
-    OnlineGame,
+    HostOnlineGame,
+    JoinOnlineGame,
     Loading,
     Pause
   };

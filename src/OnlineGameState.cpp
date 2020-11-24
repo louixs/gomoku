@@ -1,4 +1,4 @@
-#include "NetworkedMultiplayerGame.hpp"
+#include "OnlineGameState.hpp"
 
 #include <iostream>
 #include <SFML/Network/IpAddress.hpp>
@@ -25,15 +25,11 @@ sf::IpAddress getAddressFromFile()
   return localAddress;
 }
 
-NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
-  : mCellSize(40)
-  , mTextures()
-  , TimePerFrame(sf::seconds(1.f/5.f))
+OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost)
+  : State(stack, context)
+  , mWindow(*context.window)
+  , mCellSize(40)
   , mCurrentTurn(FIRST)
-  , mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
-                          "Gomoku",
-                          sf::Style::Default,
-                          mSettings)
   , mConnected(false)
   , mGameServer(nullptr)
   , mIsHost(isHost)
@@ -41,21 +37,32 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   , mIsTurn(false)
   , mWinner(0)
 {
-  mSettings.antialiasingLevel = 8;
-  initStones();
+  sf::Font& font = context.fonts->get(Fonts::Main);
+  sf::Texture& blackStoneTexture = context.textures->get(Textures::BlackStone);
+  sf::Texture& whiteStoneTexture = context.textures->get(Textures::WhiteStone);
 
-  // init fonts and texts
-  mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
-  sf::Font& mainFont = mFonts.get(Fonts::Main);
+  blackStoneTexture.setSmooth(true);
+  whiteStoneTexture.setSmooth(true);
+
+  // set stone sprites
+  mBlackStone.setTexture(blackStoneTexture);
+  mWhiteStone.setTexture(whiteStoneTexture);
+
+  // set stone scales
+  mBlackStone.setScale(1.0*mCellSize / mBlackStone.getLocalBounds().width,
+                       1.0*mCellSize / mBlackStone.getLocalBounds().height);
+  mWhiteStone.setScale(1.0*mCellSize / mWhiteStone.getLocalBounds().width,
+                       1.0*mCellSize / mWhiteStone.getLocalBounds().height);
+
 
   // init winner text
-  mInfoText.setFont(mainFont);
+  mInfoText.setFont(font);
   mInfoText.setPosition(5.f, 5.f);
   mInfoText.setCharacterSize(24);
   mInfoText.setFillColor(sf::Color::Red);
 
   // networking
-  mBroadcastText.setFont(mainFont);
+  mBroadcastText.setFont(font);
   mBroadcastText.setPosition(5.f, 5.f);
   mBroadcastText.setCharacterSize(40);
   mBroadcastText.setFillColor(sf::Color::Red);
@@ -84,34 +91,8 @@ NetworkedMultiplayerGame::NetworkedMultiplayerGame(bool isHost)
   mSocket.setBlocking(false);
 }
 
-void NetworkedMultiplayerGame::loadTextures() {
-  mTextures.load(Textures::BlackStone, "assets/black_stone.bmp");
-  mTextures.load(Textures::WhiteStone, "assets/white_stone.bmp");
-}
-
-void NetworkedMultiplayerGame::initStones() {
-  // load stone textures
-  loadTextures();
-  
-  auto& blackStoneTexture = mTextures.get(Textures::BlackStone);
-  blackStoneTexture.setSmooth(true);
-
-  auto& whiteStoneTexture = mTextures.get(Textures::WhiteStone);
-  whiteStoneTexture.setSmooth(true);
-
-  // set stone sprites
-  mBlackStone.setTexture(blackStoneTexture);
-  mWhiteStone.setTexture(whiteStoneTexture);
-
-  // set stone scales
-  mBlackStone.setScale(1.0*mCellSize / mBlackStone.getLocalBounds().width,
-                       1.0*mCellSize / mBlackStone.getLocalBounds().height);
-  mWhiteStone.setScale(1.0*mCellSize / mWhiteStone.getLocalBounds().width,
-                       1.0*mCellSize / mWhiteStone.getLocalBounds().height);
-}
-
-void NetworkedMultiplayerGame::drawBoard () {
-  mWindow.clear(sf::Color(255,207,97));
+void OnlineGameState::drawBoard (sf::RenderWindow& window) {
+  window.clear(sf::Color(255,207,97));
   float midCell = 1.0 * mCellSize / 2;
 
   // Horizontal lines
@@ -120,7 +101,7 @@ void NetworkedMultiplayerGame::drawBoard () {
       sf::Vertex(sf::Vector2f(midCell, midCell + x * mCellSize), sf::Color::Black),
       sf::Vertex(sf::Vector2f(mCellSize * mBoardSize - midCell, midCell + x * mCellSize), sf::Color::Black)
     };
-    mWindow.draw(hline, 2, sf::Lines);
+    window.draw(hline, 2, sf::Lines);
   };
 
   // Vertical lines
@@ -129,7 +110,7 @@ void NetworkedMultiplayerGame::drawBoard () {
       sf::Vertex(sf::Vector2f(midCell + y * mCellSize, midCell), sf::Color::Black),
       sf::Vertex(sf::Vector2f(midCell + y * mCellSize, mCellSize * mBoardSize - midCell), sf::Color::Black)
     };
-    mWindow.draw(vline, 2, sf::Lines);
+    window.draw(vline, 2, sf::Lines);
   };
 
   // Draw start points
@@ -143,36 +124,36 @@ void NetworkedMultiplayerGame::drawBoard () {
       int yDistance = (mCellSize * cells_between) * y;
       circle.setPosition( ((midCell + mCellSize * 3.f) + xDistance ) - radius,
                           ((midCell + mCellSize * 3.f) + yDistance) - radius);
-      mWindow.draw(circle);
+      window.draw(circle);
     };
   };
 }
 
-void NetworkedMultiplayerGame::drawStones () {
+void OnlineGameState::drawStones (sf::RenderWindow& window) {
   // Note that this doesn't work if window is resized!!
   for (int x = 0; x < mBoardSize; x++) {
     for (int y = 0; y < mBoardSize; y++) {
         if (mBoard[x][y] == BLACK) {
           mBlackStone.setPosition(x*mCellSize, y*mCellSize);
-          mWindow.draw(mBlackStone);
+          window.draw(mBlackStone);
         }
         if (mBoard[x][y] == WHITE) {
           mWhiteStone.setPosition(x*mCellSize, y*mCellSize);
-          mWindow.draw(mWhiteStone);
+          window.draw(mWhiteStone);
         }
     }
   }
 }
 
-void NetworkedMultiplayerGame::drawWinnerText() {
-  mWindow.draw(mInfoText);
+void OnlineGameState::drawWinnerText(sf::RenderWindow& window) {
+  window.draw(mInfoText);
 }
 
-bool NetworkedMultiplayerGame::isLegal(int x, int y){
+bool OnlineGameState::isLegal(int x, int y){
   return mBoard[x][y] == 0 || false;
 };
 
-string NetworkedMultiplayerGame::getWinnerStr (int stone) {
+string OnlineGameState::getWinnerStr (int stone) {
   switch(stone) {
     case 1:
       return "Black";
@@ -187,7 +168,7 @@ string NetworkedMultiplayerGame::getWinnerStr (int stone) {
 };
 
 // network
-void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
+void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
   switch (packetType) {
     case Server::BroadcastMessage: {
       std::string message;
@@ -247,7 +228,7 @@ void NetworkedMultiplayerGame::handlePacket(sf::Int32 packetType, sf::Packet& pa
   }
 }
 
-void NetworkedMultiplayerGame::updateBroadcastMessage(sf::Time elapsedTime){
+void OnlineGameState::updateBroadcastMessage(sf::Time elapsedTime){
   if (mBroadcasts.empty()) {
     return;
   }
@@ -266,7 +247,7 @@ void NetworkedMultiplayerGame::updateBroadcastMessage(sf::Time elapsedTime){
 
 }
 
-void NetworkedMultiplayerGame::update (sf::Time dt) {
+bool OnlineGameState::update (sf::Time dt) {
   if (mConnected) {
     // handle messages from server that may have arrived
     sf::Packet packet;
@@ -290,24 +271,24 @@ void NetworkedMultiplayerGame::update (sf::Time dt) {
     }
   } else {
   }
+  return true;
 }
 
-void NetworkedMultiplayerGame::drawBroadcast() {
+void OnlineGameState::drawBroadcast(sf::RenderWindow& window) {
   if (!mBroadcasts.empty()) {
-    mWindow.draw(mBroadcastText);
+    window.draw(mBroadcastText);
   }
 }
 
-void NetworkedMultiplayerGame::render() {
-  drawBoard();
-  drawStones();
-  drawWinnerText();
-
-  drawBroadcast();
-  mWindow.display();
+void OnlineGameState::draw() {
+  sf::RenderWindow& window = *getContext().window;
+  drawBoard(window);
+  drawStones(window);
+  drawWinnerText(window);
+  drawBroadcast(window);
 }
 
-void NetworkedMultiplayerGame::sendPositionUpdates(int x, int y) {
+void OnlineGameState::sendPositionUpdates(int x, int y) {
   sf::Packet packet;
   packet << static_cast<sf::Int32>(Client::PositionUpdate);
   packet << x;
@@ -316,7 +297,7 @@ void NetworkedMultiplayerGame::sendPositionUpdates(int x, int y) {
   mSocket.send(packet);
 }
 
-void NetworkedMultiplayerGame::handleInput(sf::Event event) {
+void OnlineGameState::handleInput(const sf::Event& event) {
   if (event.type == sf::Event::MouseButtonPressed) {
       int ix = event.mouseButton.x / mCellSize;
       int iy = event.mouseButton.y / mCellSize;
@@ -330,42 +311,20 @@ void NetworkedMultiplayerGame::handleInput(sf::Event event) {
         cout << "current turn right after clicking: " << mCurrentTurn << endl;
         mBoard[ix][iy] = mCurrentTurn;
         sendPositionUpdates(ix, iy);
-        update(TimePerFrame);
+        //update(TimePerFrame);
       } else {
         cout << "Cannot place your stone there, try again" << endl;
       }
     }
 }
 
-void NetworkedMultiplayerGame::processEvents() {
-  sf::Event event;
-  while (mWindow.pollEvent(event)) {
-    if (event.type == sf::Event::Closed) {
-      mWindow.close();
-    };
-    bool isTurn = mPlayerTurn == mCurrentTurn;
-    if (mGameStarted && isTurn) {
-      mInfoText.setString("Your turn");
-      handleInput(event);
-    } else {
-      mInfoText.setString("Other player's turn");
-    }
+bool OnlineGameState::handleEvent(const sf::Event& event) {
+  bool isTurn = mPlayerTurn == mCurrentTurn;
+  if (mGameStarted && isTurn) {
+    mInfoText.setString("Your turn");
+    handleInput(event);
+  } else {
+    mInfoText.setString("Other player's turn");
   }
-}
-
-void NetworkedMultiplayerGame::run() {
-  sf::Clock clock;
-  sf::Time timeSinceLastUpdate = sf::Time::Zero;
-
-  while (mWindow.isOpen()) {
-    sf::Time dt = clock.restart();
-    timeSinceLastUpdate += dt;
-    while (timeSinceLastUpdate > TimePerFrame) {
-      timeSinceLastUpdate -= TimePerFrame;
-
-      processEvents();
-      update(TimePerFrame);
-    }
-    render();
-  }
+  return true;
 }

@@ -17,9 +17,9 @@ class MenuState : public State {
 
   private:
     enum OptionNames {
-      PlayLocal,
-      PlayOnlineClient,
-      PlayOnlineHost,
+      PlayLocalGame,
+      JoinOnlineGame,
+      HostOnlineGame,
       Exit
     };
 
