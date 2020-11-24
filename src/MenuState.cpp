@@ -17,7 +17,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 
   sf::Text playLocalOption;
   playLocalOption.setFont(font);
-  playLocalOption.setString("Play");
+  playLocalOption.setString("Play Local");
   centerOrigin(playLocalOption);
   playLocalOption.setPosition(context.window->getView().getSize() / 2.f);
   mOptions.push_back(playLocalOption);
@@ -69,7 +69,7 @@ bool MenuState::handleEvent(const sf::Event& event) {
   if (event.key.code == sf::Keyboard::Return) {
     if (mOptionIndex == PlayLocal) {
       requestStackPop();
-      requestStackPush(States::Game);
+      requestStackPush(States::LocalGame);
     } else if (mOptionIndex == Exit) {
       requestStackPop();
     }

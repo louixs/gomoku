@@ -6,7 +6,8 @@ namespace States {
     None,
     Title,
     Menu,
-    Game,
+    LocalGame,
+    OnlineGame,
     Loading,
     Pause
   };

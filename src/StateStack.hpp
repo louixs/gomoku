@@ -75,7 +75,7 @@ template <typename T, typename Param1>
 void StateStack::registerState(States::ID stateID, Param1 arg1) {
   mFactories[stateID] = [this, arg1] () {
     return State::Ptr(new T(*this, mContext, arg1));
-  }
+  };
 }
 
 #endif // __STATESTACK_H_

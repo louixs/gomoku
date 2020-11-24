@@ -3,6 +3,7 @@
 #include "StateIdentifiers.hpp"
 #include "TitleState.hpp"
 #include "MenuState.hpp"
+#include "LocalGameState.hpp"
 
 #include <iostream>
 using namespace std;
@@ -19,8 +20,11 @@ Application::Application()
 , mFonts()
 , mStateStack(State::Context(mWindow, mTextures, mFonts))
 {
+  mSettings.antialiasingLevel = 8;
   mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
   mTextures.load(Textures::TitleScreen, "assets/title.png");
+  mTextures.load(Textures::BlackStone, "assets/black_stone.bmp");
+  mTextures.load(Textures::WhiteStone, "assets/white_stone.bmp");
   registerStates();
 
   mStateStack.pushState(States::Title);
@@ -73,4 +77,5 @@ void Application::render() {
 void Application::registerStates() {
   mStateStack.registerState<TitleState>(States::Title);
   mStateStack.registerState<MenuState>(States::Menu);
+  mStateStack.registerState<LocalGameState>(States::LocalGame);
 }
