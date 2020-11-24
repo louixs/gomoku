@@ -23,6 +23,8 @@ class OnlineGameState : public State {
     virtual void draw();
     virtual bool update(sf::Time dt);
     virtual bool handleEvent(const sf::Event& event);
+    virtual void onActivate();
+    void onDestroy();
 
   private:
     sf::RenderWindow& mWindow;
@@ -47,7 +49,12 @@ class OnlineGameState : public State {
     sf::Text mBroadcastText;
     sf::Time mBroadcastElapsedTime;
     bool mConnected;
+    bool mActiveState;
     sf::TcpSocket mSocket;
+    sf::Text mFailedConnectionText;
+    sf::Clock mFailedConnectionClock;
+    sf::Time mClientTimeout;
+	sf::Time mTimeSinceLastPacket;
     bool mIsTurn;
 
   private:    

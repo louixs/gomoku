@@ -14,6 +14,7 @@ GameServer::RemotePeer::RemotePeer()
 
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
+, mClientTimeoutTime(sf::seconds(3.f))
 , mCurrentTurn(FIRST)
 , mGameStarted(false)
 , mGameStartPlayerCount(2)
@@ -22,7 +23,6 @@ GameServer::GameServer()
 , mConnectedPlayers(0)
 , mPeers(1)
 , mWaitingThreadEnd(false)
-
 {
   mListenerSocket.setBlocking(false);
   mPeers[0].reset(new RemotePeer());
@@ -128,15 +128,52 @@ void GameServer::broadcastMessage(const std::string& message)
 }
 
 void GameServer::handleIncomingPackets(){
+
+  bool detectedTimeout = false;
+
   for(PeerPtr& peer : mPeers) {
     if (peer->ready) {
       sf::Packet packet;
       while (peer->socket.receive(packet) == sf::Socket::Done) {
-        handleIncomingPacket(packet, *peer);
+        handleIncomingPacket(packet, *peer, detectedTimeout);
         peer->lastPacketTime = now();
         packet.clear();
       }
 
+      if (now() >= peer->lastPacketTime + mClientTimeoutTime) {
+        cout << "handleIncomingPackets" << endl;
+        cout << now().asMilliseconds() << endl;
+        cout << peer->lastPacketTime.asMilliseconds() << endl;
+        cout << mClientTimeoutTime.asMilliseconds() << endl;
+        cout << "handleIncomingPackets: dtected timeout" << endl;
+        peer->timedOut = true;
+        detectedTimeout = true;
+      }
+    }
+  }
+
+  if (detectedTimeout) {
+    handleDisconnections();
+  }
+}
+
+void GameServer::handleDisconnections() {
+  for (auto itr = mPeers.begin(); itr != mPeers.end(); ) {
+    if ((*itr)->timedOut) {
+
+      mConnectedPlayers--;
+      itr  = mPeers.erase(itr);
+
+      // Go back to a listening state if needed
+      if (mConnectedPlayers < mMaxConnectedPlayers) {
+        mPeers.push_back(PeerPtr(new RemotePeer()));
+        setListening(true);
+      }
+
+      broadcastMessage("A player has disconnected");
+    }
+    else {
+      ++itr;
     }
   }
 }
@@ -165,11 +202,19 @@ void GameServer::sendWinner (const mTurns& currentTurn) {
   sendToAll(packet);
 }
 
-void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingPeer){
+void GameServer::handleIncomingPacket(sf::Packet& packet,
+                                      RemotePeer& receivingPeer,
+                                      bool& detectedTimeout) {
   sf::Int32 packetType;
   packet >> packetType;
 
   switch (packetType) {
+    case Client::Quit: {
+      cout << "Received Client::Quit" << endl;
+      receivingPeer.timedOut = true;
+      detectedTimeout = true;
+    } break;
+
     case Client::PositionUpdate: { // improve naming
       int x;
       int y;
@@ -204,7 +249,6 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
         sendTurnUpdate();
       }
 
-
     } break;
   }
 }
@@ -234,7 +278,7 @@ void GameServer::handleIncomingConnections(){
     int playerTurn = mConnectedPlayers + 1;
     // send message
     // player connectd
-    broadcastMessage("New player Connected!");
+    broadcastMessage("New player connected!");
     // assign stone
     mPeers[mConnectedPlayers]->turn = playerTurn;
     mPeers[mConnectedPlayers]->ready = true;

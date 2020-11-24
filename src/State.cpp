@@ -34,3 +34,7 @@ void State::requestStateClear(){
 State::Context State::getContext() const {
   return mContext;
 }
+
+void State::onActivate() {}
+
+void State::onDestroy() {}

@@ -1,5 +1,6 @@
 #include "OnlineGameState.hpp"
 #include "MusicPlayer.hpp"
+#include "Utility.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
 
@@ -33,8 +34,11 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   , mCurrentTurn(FIRST)
   , mConnected(false)
   , mGameServer(nullptr)
+  , mActiveState(true)
   , mIsHost(isHost)
   , mGameStarted(false)
+  , mClientTimeout(sf::seconds(2.f))
+  , mTimeSinceLastPacket(sf::seconds(0.f))
   , mIsTurn(false)
   , mWinner(0)
 {
@@ -69,7 +73,20 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   mBroadcastText.setCharacterSize(40);
   mBroadcastText.setFillColor(sf::Color::Red);
 
-  // game server
+  // reuse
+  mFailedConnectionText.setFont(context.fonts->get(Fonts::Main));
+  mFailedConnectionText.setString("Attempting to connect...");
+  mFailedConnectionText.setCharacterSize(35);
+  mFailedConnectionText.setFillColor(sf::Color::Black);
+  centerOrigin(mFailedConnectionText);
+  mFailedConnectionText.setPosition(mWindow.getSize().x / 2.f, mWindow.getSize().y / 2.f);
+
+  // render "Connecting..."  text
+  mWindow.clear(sf::Color::Black);
+	mWindow.draw(mFailedConnectionText);
+	mWindow.display();
+	centerOrigin(mFailedConnectionText);
+
   // if host
   sf::IpAddress ip;
   if (isHost) {
@@ -88,6 +105,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
     mConnected = true;
   } else {
     // handle failed connection
+    mFailedConnectionClock.restart();
   }
 
   mSocket.setBlocking(false);
@@ -254,12 +272,18 @@ bool OnlineGameState::update (sf::Time dt) {
     // handle messages from server that may have arrived
     sf::Packet packet;
     if (mSocket.receive(packet) == sf::Socket::Done) {
-      // mTimeSinceLastPacket = sf::seconds(0.f);
+      mTimeSinceLastPacket = sf::seconds(0.f);
       sf::Int32 packetType;
       packet >> packetType;
       handlePacket(packetType, packet);
     } else {
       // handle server timeout
+      if (mTimeSinceLastPacket > mClientTimeout) {
+        mConnected = false;
+        mFailedConnectionText.setString("Lost connection to server");
+        centerOrigin(mFailedConnectionText);
+        mFailedConnectionClock.restart();
+      }
     }
 
     // update broadcast message
@@ -271,7 +295,12 @@ bool OnlineGameState::update (sf::Time dt) {
       winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
       mInfoText.setString(winnerStr);
     }
-  } else {
+
+    mTimeSinceLastPacket += dt;
+  } else if (mFailedConnectionClock.getElapsedTime() >= sf::seconds(5.f)){
+    cout << "OnlineGameState::update timeout, going back to menu" << endl;
+    requestStateClear();
+    requestStackPush(States::Menu);
   }
   return true;
 }
@@ -284,10 +313,29 @@ void OnlineGameState::drawBroadcast(sf::RenderWindow& window) {
 
 void OnlineGameState::draw() {
   sf::RenderWindow& window = *getContext().window;
-  drawBoard(window);
-  drawStones(window);
-  drawWinnerText(window);
-  drawBroadcast(window);
+
+  if (mConnected) {
+    drawBoard(window);
+    drawStones(window);
+    drawWinnerText(window);
+    drawBroadcast(window);
+  } else {
+    mFailedConnectionText.setString("Could not connect to the remote server!");
+    window.draw(mFailedConnectionText);
+  }
+}
+
+void OnlineGameState::onActivate() {
+  mActiveState = true;
+}
+
+void OnlineGameState::onDestroy() {
+  if (!mIsHost && mConnected) {
+    // inform server this client is being destroyed
+    sf::Packet packet;
+    packet << static_cast<sf::Int32>(Client::Quit);
+    mSocket.send(packet);
+  }
 }
 
 void OnlineGameState::sendPositionUpdates(int x, int y) {

@@ -26,6 +26,7 @@ class GameServer {
     bool mWaitingThreadEnd;
     sf::TcpListener mListenerSocket;
     bool mIsListening;
+    sf::Time mClientTimeoutTime;
     std::size_t mMaxConnectedPlayers;
     std::size_t mConnectedPlayers;
     bool mGameStarted;
@@ -51,8 +52,9 @@ class GameServer {
     void executionThread();
     void tick();
     void handleIncomingPackets();
-    void handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingPeer);
+    void handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingPeer, bool& detectedTimeout);
     void handleIncomingConnections();
+    void handleDisconnections();
     void setListening(bool enable);
     void broadcastMessage(const std::string& message);
     void sendToAll(sf::Packet& packet);
