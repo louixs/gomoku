@@ -302,7 +302,7 @@ bool OnlineGameState::update (sf::Time dt) {
 
     mTimeSinceLastPacket += dt;
     
-  } else if (mFailedConnectionClock.getElapsedTime() >= sf::seconds(5.f)){
+  } else if (mFailedConnectionClock.getElapsedTime() >= sf::seconds(30.f)){
     cout << "OnlineGameState::update timeout, going back to menu" << endl;
     requestStateClear();
     requestStackPush(States::Menu);
