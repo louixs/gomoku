@@ -102,11 +102,6 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
     cout << "Successfully connected to the server" << endl;
     cout << "ip: " << ip << endl;
     cout << "port: " << ServerPort << endl;
-
-    // sf::Packet packet;
-    // packet << static_cast<sf::Int32>(Client::Ack);
-    // cout << "Sending ack from cleint" << endl;
-    // mSocket.send(packet);
     mConnected = true;
   } else {
     // handle failed connection
@@ -195,9 +190,9 @@ string OnlineGameState::getWinnerStr (int stone) {
 // network
 void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
   switch (packetType) {
-    // case Server::PlayerDisconnect: {
-    //   cout << "Server::PlayerDisconnect received";
-    // } break;
+    case Server::PlayerDisconnect: {
+      cout << "Server::PlayerDisconnect received";
+    } break;
 
     case Server::BroadcastMessage: {
       std::string message;
