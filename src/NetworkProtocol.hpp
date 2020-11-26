@@ -1,7 +1,7 @@
 #ifndef __NETWORKPROTOCOL_H_
 #define __NETWORKPROTOCOL_H_
 
-const unsigned short ServerPort = 52312;
+const unsigned short ServerPort = 51781;
 
 namespace Server
 {
