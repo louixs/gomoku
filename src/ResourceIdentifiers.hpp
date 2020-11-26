@@ -5,6 +5,7 @@
 namespace sf {
   class Texture;
   class Font;
+  class SoundBuffer;
 }
 
 namespace Textures {
@@ -21,12 +22,17 @@ namespace Fonts {
   };
 }
 
-
 namespace Music {
   enum ID
     {
       MenuTheme
     };
+}
+
+namespace SoundEffect {
+  enum ID {
+    Quip
+  };
 }
 
 // Forward declaration and a few type definitions
@@ -35,5 +41,6 @@ class ResourceHolder;
 
 typedef ResourceHolder<sf::Texture, Textures::ID> TextureHolder;
 typedef ResourceHolder<sf::Font, Fonts::ID> FontHolder;
+typedef ResourceHolder<sf::SoundBuffer, SoundEffect::ID> SoundBufferHolder;
 
 #endif // __RESOURCEIDENTIFIERS_H_
