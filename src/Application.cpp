@@ -9,7 +9,7 @@
 #include <iostream>
 using namespace std;
 
-const sf::Time Application::TimePerFrame = sf::seconds(1.f/5.f);
+const sf::Time Application::TimePerFrame = sf::seconds(1.f/30.f);
 
 Application::Application()
 : mCellSize(40)
