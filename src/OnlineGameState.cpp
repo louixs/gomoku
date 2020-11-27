@@ -227,6 +227,8 @@ void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
       packet >> y;
       // update board
       mBoard[x][y] = mCurrentTurn;
+      playStoneClick();
+      //update(TimePerFrame);
       // determine whether it's the turn for this instance
     } break;
 
@@ -363,12 +365,10 @@ void OnlineGameState::handleInput(const sf::Event& event) {
       cout << "Mouse Y: " << event.mouseButton.y << endl;
       cout << "ix: " << ix << endl;
       cout << "iy: " << iy << endl;
-      cout << "current turn: " << mCurrentTurn << endl;
       if (event.mouseButton.button == sf::Mouse::Left && isLegal(ix, iy)) {
-        cout << "current turn right after clicking: " << mCurrentTurn << endl;
         mBoard[ix][iy] = mCurrentTurn;
+        playStoneClick();
         sendPositionUpdates(ix, iy);
-        //update(TimePerFrame);
       } else {
         cout << "Cannot place your stone there, try again" << endl;
       }
@@ -392,5 +392,17 @@ bool OnlineGameState::handleEvent(const sf::Event& event) {
 void OnlineGameState::playQuip(const sf::Event& event) {
   if (event.key.code == sf::Keyboard::Q) {
     mSounds.play(SoundEffect::Quip);
+  }
+}
+
+void OnlineGameState::playStoneClick() {
+  switch (mCurrentTurn) {
+    case FIRST: {
+      mSounds.play(SoundEffect::Stone1);
+    } break;
+
+    case SECOND: {
+      mSounds.play(SoundEffect::Stone2);
+    } break;
   }
 }

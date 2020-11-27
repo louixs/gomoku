@@ -68,6 +68,8 @@ class OnlineGameState : public State {
     std::string getWinnerStr(int stone);
     bool hasWon(int x, int y);
     void playQuip(const sf::Event& event);
+    void playStoneClick();
+
     // networking
     void handlePacket(sf::Int32 packetType, sf::Packet& packet);
     void updateBroadcastMessage(sf::Time elapsedTime);
