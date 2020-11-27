@@ -31,9 +31,10 @@ namespace Music {
 
 namespace SoundEffect {
   enum ID {
-    Quip,
     Stone1,
-    Stone2
+    Stone2,
+    // quips
+    NeedWork,
   };
 }
 

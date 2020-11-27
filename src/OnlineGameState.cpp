@@ -32,7 +32,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   : State(stack, context)
   , mWindow(*context.window)
   , mCellSize(40)
-  , mCurrentTurn(FIRST)
+  , mCurrentTurn(Game::First)
   , mConnected(false)
   , mGameServer(nullptr)
   , mActiveState(true)
@@ -155,11 +155,11 @@ void OnlineGameState::drawStones (sf::RenderWindow& window) {
   // Note that this doesn't work if window is resized!!
   for (int x = 0; x < mBoardSize; x++) {
     for (int y = 0; y < mBoardSize; y++) {
-        if (mBoard[x][y] == BLACK) {
+        if (mBoard[x][y] == Game::First) {
           mBlackStone.setPosition(x*mCellSize, y*mCellSize);
           window.draw(mBlackStone);
         }
-        if (mBoard[x][y] == WHITE) {
+        if (mBoard[x][y] == Game::Second) {
           mWhiteStone.setPosition(x*mCellSize, y*mCellSize);
           window.draw(mWhiteStone);
         }
@@ -175,12 +175,12 @@ bool OnlineGameState::isLegal(int x, int y){
   return mBoard[x][y] == 0 || false;
 };
 
-string OnlineGameState::getWinnerStr (int stone) {
-  switch(stone) {
-    case 1:
+string OnlineGameState::getWinnerStr (Game::Turns turn) {
+  switch(turn) {
+    case Game::First:
       return "Black";
       break;
-    case 2:
+    case Game::Second:
       return "White";
       break;
     default:
@@ -243,14 +243,14 @@ void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
       //sf::Int32 playerTurn;
       int playerTurn;
       packet >> playerTurn;
-      mPlayerTurn = (turns)playerTurn;
+      mPlayerTurn = (Game::Turns)playerTurn;
     } break;
 
     case Server::TurnUpdate: {
       cout << "Turn update received" << endl;
       sf::Int32 currentTurn;
       packet >> currentTurn;
-      mCurrentTurn = (turns)currentTurn;
+      mCurrentTurn = (Game::Turns)currentTurn;
     } break;
 
     case Server::WinnerUpdate: {
@@ -258,6 +258,17 @@ void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
       sf::Int32 winner;
       packet >> winner;
       mWinner = winner;
+    } break;
+
+    case Server::Quip: {
+      cout << "Received quip" << endl;
+      sf::Int32 effect;
+      packet >> effect;
+      cout << "Checking if quip is actually what we expect: "
+           << (SoundEffect::NeedWork == (SoundEffect::ID)effect)
+           << endl;
+      mSounds.play((SoundEffect::ID)effect);
+      //mSounds.play(SoundEffect::NeedWork);
     } break;
   }
 }
@@ -380,7 +391,7 @@ void OnlineGameState::handleInput(const sf::Event& event) {
       }
     }
   else if (event.type == sf::Event::KeyPressed) {
-    playQuip(event);
+    sendQuip(event);
   }
 }
 
@@ -398,19 +409,23 @@ bool OnlineGameState::handleEvent(const sf::Event& event) {
   return true;
 }
 
-void OnlineGameState::playQuip(const sf::Event& event) {
+void OnlineGameState::sendQuip(const sf::Event& event) {
   if (event.key.code == sf::Keyboard::Q) {
-    mSounds.play(SoundEffect::Quip);
+    cout << "Sending Quip - NeedWork" << endl;
+    sf::Packet packet;
+    packet << static_cast<sf::Int32>(Client::Quip);
+    packet << static_cast<sf::Int32>(SoundEffect::NeedWork);
+    mSocket.send(packet);
   }
 }
 
 void OnlineGameState::playStoneClick() {
   switch (mCurrentTurn) {
-    case FIRST: {
+    case Game::First: {
       mSounds.play(SoundEffect::Stone1);
     } break;
 
-    case SECOND: {
+    case Game::Second: {
       mSounds.play(SoundEffect::Stone2);
     } break;
   }

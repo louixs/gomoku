@@ -20,7 +20,8 @@ namespace Server
     TurnUpdate,
     WinnerUpdate,
     UpdateClientState,
-    PlayerData
+    PlayerData,
+    Quip
   };
 }
 
@@ -33,6 +34,7 @@ namespace Client
       //RequestCoopPartner,
       PositionUpdate, // turn, position.x, position.y
       GameEvent,
+      Quip,
       Quit
     };
 }

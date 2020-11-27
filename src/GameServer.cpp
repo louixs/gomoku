@@ -1,5 +1,6 @@
 #include "GameServer.hpp"
 #include "NetworkProtocol.hpp"
+#include "ResourceIdentifiers.hpp"
 #include <iostream>
 #include <SFML/Network/Packet.hpp>
 
@@ -209,6 +210,20 @@ void GameServer::handleIncomingPacket(sf::Packet& packet,
   packet >> packetType;
 
   switch (packetType) {
+    case Client::Quip: {
+      cout << "Received Client::Quip" << endl;
+
+      sf::Int32 effect;
+      packet >> effect;
+
+      {
+        sf::Packet packet;
+        packet << static_cast<sf::Int32>(Server::Quip);
+        packet << effect;
+        sendToAll(packet);
+      }
+    } break;
+
     case Client::Quit: {
       cout << "Received Client::Quit" << endl;
       receivingPeer.timedOut = true;

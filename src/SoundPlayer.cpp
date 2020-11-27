@@ -17,7 +17,7 @@ namespace
 SoundPlayer::SoundPlayer()
 : mSoundBuffers()
 , mSounds() {
-    mSoundBuffers.load(SoundEffect::Quip, "assets/quip.wav");
+    mSoundBuffers.load(SoundEffect::NeedWork, "assets/need_work.wav");
     mSoundBuffers.load(SoundEffect::Stone1, "assets/stone_click_1.wav");
     mSoundBuffers.load(SoundEffect::Stone2, "assets/stone_click_2.wav");
 

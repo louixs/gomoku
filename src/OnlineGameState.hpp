@@ -4,6 +4,7 @@
 #include "State.hpp"
 #include "ResourceHolder.hpp"
 #include "ResourceIdentifiers.hpp"
+#include "GameStateIdentifiers.hpp"
 #include "NetworkProtocol.hpp"
 #include "GameServer.hpp"
 
@@ -14,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#define BLACK (1)
-#define WHITE (2)
+// #define BLACK (1)
+// #define WHITE (2)
 
 class OnlineGameState : public State {
   public:
@@ -31,15 +32,15 @@ class OnlineGameState : public State {
     int mCellSize;
     static const int mBoardSize = 19;
     int mBoard[mBoardSize][mBoardSize] = { 0 };
-    enum turns { FIRST = BLACK, SECOND = WHITE };
-    turns mCurrentTurn;
+    //enum turns { FIRST = BLACK, SECOND = WHITE };
+    Game::Turns mCurrentTurn;
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
     int mWinner;
     sf::Text mInfoText;
     std::string winnerStr;
     bool mGameStarted;
-    turns mPlayerTurn;
+    Game::Turns mPlayerTurn;
 
   // for networking
   private:
@@ -66,9 +67,9 @@ class OnlineGameState : public State {
     void drawStones(sf::RenderWindow& window);
     void drawWinnerText(sf::RenderWindow& window);
     void drawBroadcast(sf::RenderWindow& window);
-    std::string getWinnerStr(int stone);
+    std::string getWinnerStr(Game::Turns turn);
     bool hasWon(int x, int y);
-    void playQuip(const sf::Event& event);
+    void sendQuip(const sf::Event& event);
     void playStoneClick();
 
     // networking

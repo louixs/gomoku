@@ -2,15 +2,17 @@
 #define __GAMESTATEIDENTIFIERS_H_
 
 namespace Game {
+  enum Stones {
+    Black = 1,
+    White
+  };
+  
   enum Turns {
-    First,
+    First = 1,
     Second
   };
 
-  enum Stones {
-    Black,
-    White
-  };
+
 }
 
 
