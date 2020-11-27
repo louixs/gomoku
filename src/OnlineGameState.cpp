@@ -1,5 +1,6 @@
 #include "OnlineGameState.hpp"
 #include "MusicPlayer.hpp"
+#include "SoundPlayer.hpp"
 #include "Utility.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
@@ -41,6 +42,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   , mTimeSinceLastPacket(sf::seconds(0.f))
   , mIsTurn(false)
   , mWinner(0)
+  , mSounds(*context.sounds)
 {
   context.music->stop();
   sf::Font& font = context.fonts->get(Fonts::Main);
@@ -371,6 +373,9 @@ void OnlineGameState::handleInput(const sf::Event& event) {
         cout << "Cannot place your stone there, try again" << endl;
       }
     }
+  else if (event.type == sf::Event::KeyPressed) {
+    playQuip(event);
+  }
 }
 
 bool OnlineGameState::handleEvent(const sf::Event& event) {
@@ -382,4 +387,10 @@ bool OnlineGameState::handleEvent(const sf::Event& event) {
     mInfoText.setString("Other player's turn");
   }
   return true;
+}
+
+void OnlineGameState::playQuip(const sf::Event& event) {
+  if (event.key.code == sf::Keyboard::Q) {
+    mSounds.play(SoundEffect::Quip);
+  }
 }

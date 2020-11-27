@@ -6,6 +6,7 @@
 //#include "Player.hpp"
 #include "StateStack.hpp"
 #include "MusicPlayer.hpp"
+#include "SoundPlayer.hpp"
 
 #include <SFML/System/Time.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -33,8 +34,9 @@ class Application {
     sf::RenderWindow mWindow;
     TextureHolder mTextures;
     FontHolder mFonts;
-    MusicPlayer mMusic;
     //Player mPlayer;
+    MusicPlayer mMusic;
+    SoundPlayer mSounds;
     StateStack mStateStack;
 };
 

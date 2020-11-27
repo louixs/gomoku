@@ -20,15 +20,16 @@ Application::Application()
 , mTextures()
 , mFonts()
 , mMusic()
-, mStateStack(State::Context(mWindow, mTextures, mFonts, mMusic))
+, mSounds()
+, mStateStack(State::Context(mWindow, mTextures, mFonts, mMusic, mSounds))
 {
   mSettings.antialiasingLevel = 8;
   mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
   mTextures.load(Textures::TitleScreen, "assets/title.png");
   mTextures.load(Textures::BlackStone, "assets/black_stone.bmp");
   mTextures.load(Textures::WhiteStone, "assets/white_stone.bmp");
-  registerStates();
 
+  registerStates();
   mStateStack.pushState(States::Title);
 
   mMusic.setVolume(25.f);

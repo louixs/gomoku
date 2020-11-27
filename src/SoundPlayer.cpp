@@ -17,7 +17,7 @@ namespace
 SoundPlayer::SoundPlayer()
 : mSoundBuffers()
 , mSounds() {
-  mSoundBuffers.load(SoundEffect::Quip, "");
+  mSoundBuffers.load(SoundEffect::Quip, "assets/quip.wav");
 
   sf::Listener::setDirection(0.f, 0.f, -1.f);
 }

@@ -52,6 +52,7 @@ class OnlineGameState : public State {
     bool mActiveState;
     sf::TcpSocket mSocket;
     sf::Text mFailedConnectionText;
+    SoundPlayer& mSounds;
     sf::Clock mFailedConnectionClock;
     sf::Time mClientTimeout;
 	sf::Time mTimeSinceLastPacket;
@@ -66,7 +67,7 @@ class OnlineGameState : public State {
     void drawBroadcast(sf::RenderWindow& window);
     std::string getWinnerStr(int stone);
     bool hasWon(int x, int y);
-
+    void playQuip(const sf::Event& event);
     // networking
     void handlePacket(sf::Int32 packetType, sf::Packet& packet);
     void updateBroadcastMessage(sf::Time elapsedTime);
