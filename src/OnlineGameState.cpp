@@ -227,7 +227,13 @@ void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
       packet >> y;
       // update board
       mBoard[x][y] = mCurrentTurn;
-      playStoneClick();
+
+      // only play stone click sound if it's other player's turn
+      // otherwise it'll play sound twice
+      if (!isMyTurn()) {
+        playStoneClick();
+      }
+
       //update(TimePerFrame);
       // determine whether it's the turn for this instance
     } break;
@@ -378,9 +384,12 @@ void OnlineGameState::handleInput(const sf::Event& event) {
   }
 }
 
+bool OnlineGameState::isMyTurn() {
+  return mPlayerTurn == mCurrentTurn;
+}
+
 bool OnlineGameState::handleEvent(const sf::Event& event) {
-  bool isTurn = mPlayerTurn == mCurrentTurn;
-  if (mGameStarted && isTurn) {
+  if (mGameStarted && isMyTurn()) {
     mInfoText.setString("Your turn");
     handleInput(event);
   } else {

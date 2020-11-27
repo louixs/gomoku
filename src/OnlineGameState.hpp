@@ -60,6 +60,7 @@ class OnlineGameState : public State {
 
   private:    
     inline bool isLegal(int x, int y);
+    inline bool isMyTurn();
     void handleInput(const sf::Event& event);
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
