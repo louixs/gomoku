@@ -10,8 +10,7 @@
 #include <vector>
 #include <memory>
 
-#define BLACK (1)
-#define WHITE (2)
+#include "GameStateIdentifiers.hpp"
 
 class GameServer {
   public:
@@ -31,8 +30,7 @@ class GameServer {
     std::size_t mConnectedPlayers;
     bool mGameStarted;
     const unsigned long mGameStartPlayerCount;
-    enum mTurns { FIRST = BLACK, SECOND = WHITE };
-    mTurns mCurrentTurn;
+    Game::Turns mCurrentTurn;
     
     struct RemotePeer {
       RemotePeer();
@@ -64,7 +62,7 @@ class GameServer {
     void updateClientState();
     void changeTurn();
     void sendTurnUpdate();
-    void sendWinner(const mTurns& currentTurn);
+    void sendWinner(const Game::Turns& turn);
     sf::Time now() const;
 };
 

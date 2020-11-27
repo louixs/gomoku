@@ -175,7 +175,7 @@ bool OnlineGameState::isLegal(int x, int y){
   return mBoard[x][y] == 0 || false;
 };
 
-string OnlineGameState::getWinnerStr (Game::Turns turn) {
+string OnlineGameState::getWinnerStr (Game::Turns& turn) {
   switch(turn) {
     case Game::First:
       return "Black";

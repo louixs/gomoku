@@ -1,6 +1,5 @@
 #include "GameServer.hpp"
 #include "NetworkProtocol.hpp"
-#include "ResourceIdentifiers.hpp"
 #include <iostream>
 #include <SFML/Network/Packet.hpp>
 
@@ -16,7 +15,7 @@ GameServer::RemotePeer::RemotePeer()
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
 , mClientTimeoutTime(sf::seconds(60.f))
-, mCurrentTurn(FIRST)
+, mCurrentTurn(Game::First)
 , mGameStarted(false)
 , mGameStartPlayerCount(2)
 , mIsListening(false)
@@ -180,10 +179,10 @@ void GameServer::handleDisconnections() {
 }
 
 void GameServer::changeTurn () {
-  if (mCurrentTurn == FIRST) {
-    mCurrentTurn = SECOND;
+  if (mCurrentTurn == Game::First) {
+    mCurrentTurn = Game::Second;
   } else {
-    mCurrentTurn = FIRST;
+    mCurrentTurn = Game::First;
   }
 }
 
@@ -195,11 +194,11 @@ void GameServer::sendTurnUpdate () {
   sendToAll(packet);
 }
 
-void GameServer::sendWinner (const mTurns& currentTurn) {
+void GameServer::sendWinner (const Game::Turns& turn) {
   cout << "Send winner!" << endl;
   sf::Packet packet;
   packet << static_cast<sf::Int32>(Server::WinnerUpdate);
-  packet << currentTurn;
+  packet << turn;
   sendToAll(packet);
 }
 
