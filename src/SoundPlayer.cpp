@@ -17,9 +17,10 @@ namespace
 SoundPlayer::SoundPlayer()
 : mSoundBuffers()
 , mSounds() {
-    mSoundBuffers.load(SoundEffect::NeedWork, "assets/need_work.wav");
-    mSoundBuffers.load(SoundEffect::Stone1, "assets/stone_click_1.wav");
-    mSoundBuffers.load(SoundEffect::Stone2, "assets/stone_click_2.wav");
+  mSoundBuffers.load(SoundEffect::NeedWork, "assets/need_work.wav");
+  mSoundBuffers.load(SoundEffect::Namataro, "assets/namataro.wav");
+  mSoundBuffers.load(SoundEffect::Stone1, "assets/stone_click_1.wav");
+  mSoundBuffers.load(SoundEffect::Stone2, "assets/stone_click_2.wav");
 
   sf::Listener::setDirection(0.f, 0.f, -1.f);
 }

@@ -35,6 +35,7 @@ namespace SoundEffect {
     Stone2,
     // quips
     NeedWork,
+    Namataro
   };
 }
 

@@ -268,7 +268,6 @@ void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
            << (SoundEffect::NeedWork == (SoundEffect::ID)effect)
            << endl;
       mSounds.play((SoundEffect::ID)effect);
-      //mSounds.play(SoundEffect::NeedWork);
     } break;
   }
 }
@@ -410,12 +409,24 @@ bool OnlineGameState::handleEvent(const sf::Event& event) {
 }
 
 void OnlineGameState::sendQuip(const sf::Event& event) {
-  if (event.key.code == sf::Keyboard::Q) {
-    cout << "Sending Quip - NeedWork" << endl;
-    sf::Packet packet;
-    packet << static_cast<sf::Int32>(Client::Quip);
-    packet << static_cast<sf::Int32>(SoundEffect::NeedWork);
-    mSocket.send(packet);
+  switch (event.key.code) {
+    case sf::Keyboard::Q: {
+      cout << "Sending Quip - NeedWork" << endl;
+      mSounds.play(SoundEffect::NeedWork);
+      sf::Packet packet;
+      packet << static_cast<sf::Int32>(Client::Quip);
+      packet << static_cast<sf::Int32>(SoundEffect::NeedWork);
+      mSocket.send(packet);
+    } break;
+
+    case sf::Keyboard::A: {
+      cout << "Sending Quip - Namataro" << endl;
+      mSounds.play(SoundEffect::Namataro);
+      sf::Packet packet;
+      packet << static_cast<sf::Int32>(Client::Quip);
+      packet << static_cast<sf::Int32>(SoundEffect::Namataro);
+      mSocket.send(packet);
+    } break;
   }
 }
 
