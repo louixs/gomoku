@@ -402,7 +402,10 @@ bool OnlineGameState::handleEvent(const sf::Event& event) {
   if (mGameStarted && isMyTurn()) {
     mInfoText.setString("Your turn");
     handleInput(event);
-  } else {
+  } else if (!mGameStarted) {
+    mInfoText.setString("Waiting for game to start");
+  }
+  else {
     mInfoText.setString("Other player's turn");
   }
   return true;
