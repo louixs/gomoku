@@ -114,7 +114,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
 }
 
 void OnlineGameState::drawBoard (sf::RenderWindow& window) {
-  window.clear(sf::Color(255,207,97));
+  window.clear(sf::Color(255,207,97)); // brow-ish board color
   float midCell = 1.0 * mCellSize / 2;
 
   // Horizontal lines
@@ -412,7 +412,6 @@ void OnlineGameState::sendQuip(const sf::Event& event) {
   switch (event.key.code) {
     case sf::Keyboard::Q: {
       cout << "Sending Quip - NeedWork" << endl;
-      mSounds.play(SoundEffect::NeedWork);
       sf::Packet packet;
       packet << static_cast<sf::Int32>(Client::Quip);
       packet << static_cast<sf::Int32>(SoundEffect::NeedWork);
@@ -421,7 +420,6 @@ void OnlineGameState::sendQuip(const sf::Event& event) {
 
     case sf::Keyboard::A: {
       cout << "Sending Quip - Namataro" << endl;
-      mSounds.play(SoundEffect::Namataro);
       sf::Packet packet;
       packet << static_cast<sf::Int32>(Client::Quip);
       packet << static_cast<sf::Int32>(SoundEffect::Namataro);
