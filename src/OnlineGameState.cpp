@@ -65,9 +65,9 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
 
   // init winner text
   mInfoText.setFont(font);
-  mInfoText.setPosition(5.f, 5.f);
   mInfoText.setCharacterSize(24);
   mInfoText.setFillColor(sf::Color::Red);
+  mInfoText.setPosition(5.f, 5.f);
 
   // networking
   mBroadcastText.setFont(font);
@@ -79,15 +79,15 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   mFailedConnectionText.setFont(context.fonts->get(Fonts::Main));
   mFailedConnectionText.setString("Attempting to connect...");
   mFailedConnectionText.setCharacterSize(35);
-  mFailedConnectionText.setFillColor(sf::Color::Black);
+  mFailedConnectionText.setFillColor(sf::Color::White);
   centerOrigin(mFailedConnectionText);
-  mFailedConnectionText.setPosition(mWindow.getSize().x / 2.f, mWindow.getSize().y / 2.f);
+  mFailedConnectionText.setPosition(context.window->getSize().x / 2.f,
+                                    context.window->getSize().y / 2.f);
 
   // render "Connecting..."  text
   mWindow.clear(sf::Color::Black);
 	mWindow.draw(mFailedConnectionText);
 	mWindow.display();
-	centerOrigin(mFailedConnectionText);
 
   // if host
   sf::IpAddress ip;
@@ -167,25 +167,15 @@ void OnlineGameState::drawStones (sf::RenderWindow& window) {
   }
 }
 
-void OnlineGameState::drawWinnerText(sf::RenderWindow& window) {
-  window.draw(mInfoText);
-}
-
 bool OnlineGameState::isLegal(int x, int y){
   return mBoard[x][y] == 0 || false;
 };
 
-string OnlineGameState::getWinnerStr (Game::Turns& turn) {
-  switch(turn) {
-    case Game::First:
-      return "Black";
-      break;
-    case Game::Second:
-      return "White";
-      break;
-    default:
-      return "Unrecognised option";
-      break;
+string OnlineGameState::getGameEndStr () {
+  if (mCurrentTurn == mPlayerTurn) {
+    return "You've won!";
+  } else {
+    return "You've lost!";
   }
 };
 
@@ -315,11 +305,6 @@ bool OnlineGameState::update (sf::Time dt) {
     // events occuring in the game
     // send the updates to server
 
-    if (mWinner != 0) {
-      winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
-      mInfoText.setString(winnerStr);
-    }
-
     mTimeSinceLastPacket += dt;
     
   } else if (mFailedConnectionClock.getElapsedTime() >= sf::seconds(60.f)){
@@ -342,7 +327,7 @@ void OnlineGameState::draw() {
   if (mConnected) {
     drawBoard(window);
     drawStones(window);
-    drawWinnerText(window);
+    drawInfoText(window);
     drawBroadcast(window);
   } else {
     mFailedConnectionText.setString("Could not connect to the remote server!");
@@ -372,7 +357,7 @@ void OnlineGameState::sendPositionUpdates(int x, int y) {
   mSocket.send(packet);
 }
 
-void OnlineGameState::handleInput(const sf::Event& event) {
+void OnlineGameState::handleMouseInput(const sf::Event& event) {
   if (event.type == sf::Event::MouseButtonPressed) {
       int ix = event.mouseButton.x / mCellSize;
       int iy = event.mouseButton.y / mCellSize;
@@ -389,8 +374,15 @@ void OnlineGameState::handleInput(const sf::Event& event) {
         cout << "Cannot place your stone there, try again" << endl;
       }
     }
-  else if (event.type == sf::Event::KeyPressed) {
+}
+
+void OnlineGameState::handleKeyInput(const sf::Event& event) {
+  if (event.type == sf::Event::KeyPressed) {
     sendQuip(event);
+
+    if (mWinner) {
+      goToMenu(event);
+    }
   }
 }
 
@@ -398,22 +390,51 @@ bool OnlineGameState::isMyTurn() {
   return mPlayerTurn == mCurrentTurn;
 }
 
-bool OnlineGameState::handleEvent(const sf::Event& event) {
-  if (mGameStarted && isMyTurn()) {
-    mInfoText.setString("Your turn");
-    handleInput(event);
-  } else if (!mGameStarted) {
+void OnlineGameState::drawInfoText(sf::RenderWindow& window) {
+
+  if (mGameStarted) {
+
+    if (isMyTurn()) {
+      mInfoText.setString("Your turn");
+    } else {
+      mInfoText.setString("Other player's turn");
+    }
+
+    if (mWinner) {
+      mInfoText.setString(getGameEndStr());
+    }
+
+  } else {
     mInfoText.setString("Waiting for game to start");
   }
-  else {
-    mInfoText.setString("Other player's turn");
-  }
+
+  window.draw(mInfoText);
+}
+
+bool OnlineGameState::handleEvent(const sf::Event& event) {
+  if (mGameStarted) {
+
+    if (isMyTurn() & !mWinner) {
+      handleMouseInput(event);
+    }
+
+    handleKeyInput(event);
+  } 
   return true;
+}
+
+void OnlineGameState::goToMenu(const sf::Event& event) {
+  switch (event.key.code) {
+    case sf::Keyboard::Escape: {
+      requestStackPop();
+      requestStackPush(States::Menu);
+    } break;
+  }
 }
 
 void OnlineGameState::sendQuip(const sf::Event& event) {
   switch (event.key.code) {
-    case sf::Keyboard::Q: {
+    case sf::Keyboard::M: {
       cout << "Sending Quip - NeedWork" << endl;
       sf::Packet packet;
       packet << static_cast<sf::Int32>(Client::Quip);
@@ -421,7 +442,7 @@ void OnlineGameState::sendQuip(const sf::Event& event) {
       mSocket.send(packet);
     } break;
 
-    case sf::Keyboard::A: {
+    case sf::Keyboard::N: {
       cout << "Sending Quip - Namataro" << endl;
       sf::Packet packet;
       packet << static_cast<sf::Int32>(Client::Quip);

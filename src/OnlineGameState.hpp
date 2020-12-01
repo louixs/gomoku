@@ -58,14 +58,16 @@ class OnlineGameState : public State {
   private:    
     inline bool isLegal(int x, int y);
     inline bool isMyTurn();
-    void handleInput(const sf::Event& event);
+    void handleMouseInput(const sf::Event& event);
+    void handleKeyInput(const sf::Event& event);
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
-    void drawWinnerText(sf::RenderWindow& window);
     void drawBroadcast(sf::RenderWindow& window);
-    std::string getWinnerStr(Game::Turns& turn);
+    void drawInfoText(sf::RenderWindow& window);
+    std::string getGameEndStr();
     bool hasWon(int x, int y);
     void sendQuip(const sf::Event& event);
+    void goToMenu(const sf::Event& event);
     void playStoneClick();
 
     // networking
