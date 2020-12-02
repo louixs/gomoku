@@ -15,7 +15,7 @@ Application::Application()
 : mCellSize(40)
 , mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
           "Gomoku",
-          sf::Style::Default,
+          sf::Style::Titlebar | sf::Style::Close,
           mSettings)
 , mTextures()
 , mFonts()
