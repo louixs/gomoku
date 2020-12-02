@@ -92,7 +92,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   // if host
   sf::IpAddress ip;
   if (isHost) {
-    cout << "This instance is the host, spawining the game server" << endl;
+    cout << "This instance is the host, spawning the game server" << endl;
     mGameServer.reset(new GameServer());
     ip = "127.0.0.1";
   } else {
