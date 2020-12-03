@@ -113,7 +113,7 @@ void GameServer::tick(){
 
 void GameServer::broadcastMessage(const std::string& message)
 {
-  cout << "borad cast message: " << message << endl;
+  cout << "broadcast message: " << message << endl;
   for (std::size_t i = 0; i < mConnectedPlayers; ++i)
   {
     if (mPeers[i]->ready)
