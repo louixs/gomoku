@@ -5,6 +5,7 @@
 #include "MenuState.hpp"
 #include "LocalGameState.hpp"
 #include "OnlineGameState.hpp"
+#include "SelectHostState.hpp"
 
 #include <iostream>
 using namespace std;
@@ -83,6 +84,7 @@ void Application::registerStates() {
   mStateStack.registerState<TitleState>(States::Title);
   mStateStack.registerState<MenuState>(States::Menu);
   mStateStack.registerState<LocalGameState>(States::LocalGame);
+  mStateStack.registerState<SelectHostState>(States::SelectHost);
   mStateStack.registerState<OnlineGameState>(States::JoinOnlineGame, false);
   mStateStack.registerState<OnlineGameState>(States::HostOnlineGame, true);
 }

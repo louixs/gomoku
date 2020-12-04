@@ -108,7 +108,7 @@ bool MenuState::handleEvent(const sf::Event& event) {
     }
     else if (mOptionIndex == JoinOnlineGame) {
       requestStackPop();
-      requestStackPush(States::JoinOnlineGame);
+      requestStackPush(States::SelectHost);
     }
     else if (mOptionIndex == HostOnlineGame) {
       requestStackPop();

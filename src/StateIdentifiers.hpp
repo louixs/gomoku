@@ -8,6 +8,7 @@ namespace States {
     Menu,
     LocalGame,
     HostOnlineGame,
+    SelectHost,
     JoinOnlineGame,
     Loading,
     Pause
