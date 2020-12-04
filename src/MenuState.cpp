@@ -57,7 +57,7 @@ MenuState::MenuState(StateStack& stack, Context context)
     "Public Ip: " +
     sf::IpAddress::getPublicAddress(sf::seconds(5.f)).toString()
   );
-  publicIp.setPosition(5.f, 40.f);
+  publicIp.setPosition(5.f, 5.f);
   publicIp.setCharacterSize(20);
   publicIp.setFillColor(sf::Color::White);
   mAddresses.push_back(publicIp);
@@ -67,10 +67,10 @@ MenuState::MenuState(StateStack& stack, Context context)
 
   localIp.setFont(font);
   localIp.setString(
-    "Local  Ip:" +
+    "Local Ip: " +
     sf::IpAddress::getLocalAddress().toString()
   );
-  localIp.setPosition(5.f, 5.f);
+  localIp.setPosition(5.f, 40.f);
   localIp.setCharacterSize(20);
   localIp.setFillColor(sf::Color::White);
   mAddresses.push_back(localIp);
