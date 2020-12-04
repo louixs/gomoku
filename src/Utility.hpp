@@ -10,5 +10,6 @@ namespace sf {
 
 void centerOrigin(sf::Sprite& sprite);
 void centerOrigin(sf::Text& text);
+std::string run(const std::string& command);
 
 #endif // __UTILITY_H_
