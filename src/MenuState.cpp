@@ -1,9 +1,11 @@
 #include "MenuState.hpp"
-#include "Utility.hpp"
 #include "ResourceHolder.hpp"
+#include "Utility.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
+
+#include <SFML/Network.hpp>
 
 MenuState::MenuState(StateStack& stack, Context context)
 : State(stack, context)
@@ -44,6 +46,35 @@ MenuState::MenuState(StateStack& stack, Context context)
   mOptions.push_back(exitOption);
 
   updateOptionText();
+
+  // Get Ip addresses
+
+  std::cout << "Getting public ip" << std::endl;
+  sf::Text publicIp;
+
+  publicIp.setFont(font);
+  publicIp.setString(
+    "Public Ip: " +
+    sf::IpAddress::getPublicAddress(sf::seconds(5.f)).toString()
+  );
+  publicIp.setPosition(5.f, 40.f);
+  publicIp.setCharacterSize(20);
+  publicIp.setFillColor(sf::Color::White);
+  mAddresses.push_back(publicIp);
+
+  std::cout << "Getting local ip" << std::endl;
+  sf::Text localIp;
+
+  localIp.setFont(font);
+  localIp.setString(
+    "Local  Ip:" +
+    sf::IpAddress::getLocalAddress().toString()
+  );
+  localIp.setPosition(5.f, 5.f);
+  localIp.setCharacterSize(20);
+  localIp.setFillColor(sf::Color::White);
+  mAddresses.push_back(localIp);
+
 };
 
 void MenuState::draw() {
@@ -53,6 +84,10 @@ void MenuState::draw() {
   window.draw(mBackgroundSprite);
 
   for(const sf::Text& text : mOptions) {
+    window.draw(text);
+  }
+
+  for (const sf::Text& text : mAddresses) {
     window.draw(text);
   }
 }
