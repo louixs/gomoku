@@ -1,6 +1,7 @@
 #include "SelectHostState.hpp"
 #include "ResourceHolder.hpp"
 #include "Utility.hpp"
+#include "Globals.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -50,6 +51,31 @@ bool SelectHostState::handleEvent(const sf::Event& event) {
      mHostIp.setString(mHostIpStr);
    }
  }
+
+ // if key is enter and if ip address is valid
+ // save ip address
+ // and request next state stack
+ if (event.type == sf::Event::KeyPressed) {
+
+   switch (event.key.code) {
+     case sf::Keyboard::Enter: {
+       sf::IpAddress ip =  static_cast<sf::IpAddress>(mHostIpStr);
+
+       if (ip == sf::IpAddress::None) {
+         // address is invalid
+         // break early
+         break;
+       }
+
+       // otherwise
+       // save ip address
+       g_hostIp = ip;
+       requestStackPop();
+       requestStackPush(States::JoinOnlineGame);
+     } break;
+   }
+
+}
 
  return true;
 }
