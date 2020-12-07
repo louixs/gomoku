@@ -21,7 +21,7 @@ void centerOrigin(sf::Text& text) {
 std::string run(const std::string& command) {
   system((command + " > temp.txt").c_str());
 
-  std::ifstream inputFile("ip.txt");
+  std::ifstream inputFile("temp.txt");
   std::string ret;
 
   // put the contents of the file
