@@ -90,10 +90,10 @@ bool SelectHostState::handleEvent(const sf::Event& event) {
      case sf::Keyboard::BackSpace: {
        if (mHostIpStr .size() > 0) {
          mHostIpStr.pop_back();
+         mHostIp.setString(mHostIpStr);
        }
      } break;
    }
-
 }
 
  return true;
