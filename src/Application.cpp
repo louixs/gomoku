@@ -6,6 +6,7 @@
 #include "LocalGameState.hpp"
 #include "OnlineGameState.hpp"
 #include "SelectHostState.hpp"
+#include "ResourcePath.hpp"
 
 #include "Globals.hpp"
 
@@ -33,10 +34,10 @@ Application::Application()
 , mStateStack(State::Context(mWindow, mTextures, mFonts, mMusic, mSounds))
 {
   mSettings.antialiasingLevel = 8;
-  mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
-  mTextures.load(Textures::TitleScreen, "assets/title.jpg");
-  mTextures.load(Textures::BlackStone, "assets/black_stone.bmp");
-  mTextures.load(Textures::WhiteStone, "assets/white_stone.bmp");
+  mFonts.load(Fonts::Main, resourcePath() + "InputSerif-Light.ttf");
+  mTextures.load(Textures::TitleScreen, resourcePath() + "title.jpg");
+  mTextures.load(Textures::BlackStone, resourcePath() + "black_stone.bmp");
+  mTextures.load(Textures::WhiteStone, resourcePath() + "white_stone.bmp");
 
   registerStates();
   mStateStack.pushState(States::Title);

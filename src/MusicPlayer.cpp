@@ -1,11 +1,12 @@
 #include "MusicPlayer.hpp"
+#include "ResourcePath.hpp"
 
 MusicPlayer::MusicPlayer()
 : mMusic()
 , mFilenames()
 , mVolume(100.f)
 {
-  mFilenames[Music::MenuTheme] = "assets/theme.ogg";
+  mFilenames[Music::MenuTheme] = resourcePath() + "theme.ogg";
 }
 
 void MusicPlayer::play(Music::ID theme) {

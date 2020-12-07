@@ -1,4 +1,5 @@
 #include "SoundPlayer.hpp"
+#include "ResourcePath.hpp"
 
 #include <SFML/Audio/Listener.hpp>
 
@@ -17,12 +18,12 @@ namespace
 SoundPlayer::SoundPlayer()
 : mSoundBuffers()
 , mSounds() {
-  mSoundBuffers.load(SoundEffect::Greetings, "assets/greetings.wav");
-  mSoundBuffers.load(SoundEffect::HavingLaungh, "assets/having_laugh.wav");
-  mSoundBuffers.load(SoundEffect::MissionCompleted, "assets/mission_completed.wav");
-  mSoundBuffers.load(SoundEffect::SomePeople, "assets/some_people.wav");
-  mSoundBuffers.load(SoundEffect::Stone1, "assets/stone_click_1.wav");
-  mSoundBuffers.load(SoundEffect::Stone2, "assets/stone_click_2.wav");
+  mSoundBuffers.load(SoundEffect::Greetings, resourcePath() + "greetings.wav");
+  mSoundBuffers.load(SoundEffect::HavingLaungh, resourcePath() + "having_laugh.wav");
+  mSoundBuffers.load(SoundEffect::MissionCompleted, resourcePath() + "mission_completed.wav");
+  mSoundBuffers.load(SoundEffect::SomePeople, resourcePath() + "some_people.wav");
+  mSoundBuffers.load(SoundEffect::Stone1, resourcePath() + "stone_click_1.wav");
+  mSoundBuffers.load(SoundEffect::Stone2, resourcePath() + "stone_click_2.wav");
 
   sf::Listener::setDirection(0.f, 0.f, -1.f);
 }
