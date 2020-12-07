@@ -2,6 +2,7 @@
 #include "MusicPlayer.hpp"
 #include "SoundPlayer.hpp"
 #include "Utility.hpp"
+#include "Globals.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
 
@@ -86,8 +87,9 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
 
   // render "Connecting..."  text
   mWindow.clear(sf::Color::Black);
-	mWindow.draw(mFailedConnectionText);
-	mWindow.display();
+  mWindow.draw(mFailedConnectionText);
+  mWindow.display();
+
 
   // if host
   sf::IpAddress ip;
@@ -96,7 +98,8 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
     mGameServer.reset(new GameServer());
     ip = "127.0.0.1";
   } else {
-    ip = getAddressFromFile();
+    cout << "Global var hostIp: " << g_hostIp << endl;
+    ip = g_hostIp;
   }
 
   cout << "attempting to connect to host" << endl;

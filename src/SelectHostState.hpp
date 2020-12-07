@@ -1,5 +1,6 @@
 #ifndef __ENTERHOSTSTATE_H_
 #define __ENTERHOSTSTATE_H_
+#include <string>
 
 #include "State.hpp"
 

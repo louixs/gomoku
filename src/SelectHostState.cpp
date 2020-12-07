@@ -1,8 +1,10 @@
 #include "SelectHostState.hpp"
 #include "ResourceHolder.hpp"
 #include "Utility.hpp"
+
 #include "Globals.hpp"
 
+#include <SFML/Network/IpAddress.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 
@@ -45,9 +47,13 @@ bool SelectHostState::handleEvent(const sf::Event& event) {
  //  }
 
  if (event.type == sf::Event::TextEntered) {
-   std::cout << "Text entered" << std::endl;
-   if (event.text.unicode < 128) {
-     mHostIpStr += static_cast<char>(event.text.unicode);
+
+   // only accept numbers and dot
+   // otherwise any key is passed including Enter
+   if (event.text.unicode == 46 || // dot
+       (48 <= event.text.unicode && event.text.unicode <= 57) // numbers
+   ) {     
+     mHostIpStr += (char)event.text.unicode;
      mHostIp.setString(mHostIpStr);
    }
  }
@@ -59,19 +65,32 @@ bool SelectHostState::handleEvent(const sf::Event& event) {
 
    switch (event.key.code) {
      case sf::Keyboard::Enter: {
-       sf::IpAddress ip =  static_cast<sf::IpAddress>(mHostIpStr);
+       sf::IpAddress ip = mHostIpStr;
 
-       if (ip == sf::IpAddress::None) {
-         // address is invalid
-         // break early
+       if (ip == sf::IpAddress::None || // ip address is invalid OR
+           (mHostIpStr.size() < 8)) // not enough input from the user
+       {         
+         mPrompt.setFillColor(sf::Color::Red);
+         mPrompt.setString("Please re-enter host IP address");
+
+         // reset string
+         mHostIpStr = "";
+         mHostIp.setString(mHostIpStr);
          break;
        }
 
        // otherwise
-       // save ip address
+       // save ip address to the global var g_hostIp
        g_hostIp = ip;
        requestStackPop();
        requestStackPush(States::JoinOnlineGame);
+     } break;
+
+   // handle delete
+     case sf::Keyboard::BackSpace: {
+       if (mHostIpStr .size() > 0) {
+         mHostIpStr.pop_back();
+       }
      } break;
    }
 

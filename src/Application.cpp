@@ -7,9 +7,17 @@
 #include "OnlineGameState.hpp"
 #include "SelectHostState.hpp"
 
+#include "Globals.hpp"
+
+#include <SFML/Network/IpAddress.hpp>
+
 #include <iostream>
 using namespace std;
 
+// Global vars
+sf::IpAddress g_hostIp;
+
+//
 const sf::Time Application::TimePerFrame = sf::seconds(1.f/30.f);
 
 Application::Application()
