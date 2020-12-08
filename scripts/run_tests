@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "Compiling tests"
+g++ -std=c++17 -c ./tests/GameFunctionTests.cpp ./src/GameUtility.hpp \
+&& g++ ./*.o -o run_tests_bin \
+&& rm ./*.o ./src/*.gch \
+
+echo "Running tests as well"
+./run_tests_bin
+
+echo "Removing run_tests temp binary"
+rm ./run_tests_bin

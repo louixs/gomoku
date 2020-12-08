@@ -369,7 +369,9 @@ void OnlineGameState::handleMouseInput(const sf::Event& event) {
       cout << "Mouse Y: " << event.mouseButton.y << endl;
       cout << "ix: " << ix << endl;
       cout << "iy: " << iy << endl;
-      if (event.mouseButton.button == sf::Mouse::Left && isLegal(ix, iy)) {
+      if (event.mouseButton.button == sf::Mouse::Left && isLegal_2(mBoard, ix, iy)) {
+        // since current turn is an int, it also represens the stone of the player
+        // to avoid duplication
         mBoard[ix][iy] = mCurrentTurn;
         playStoneClick();
         sendPositionUpdates(ix, iy);
