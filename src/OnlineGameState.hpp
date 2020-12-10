@@ -28,7 +28,7 @@ class OnlineGameState : public State {
     sf::RenderWindow& mWindow;
     int mCellSize;
     static const int mBoardSize = 19;
-    int mBoard[mBoardSize][mBoardSize] = { 0 };
+    std::vector<std::vector<int> > mBoard;
     Game::Turns mCurrentTurn;
     sf::Sprite mBlackStone;
     sf::Sprite mWhiteStone;
@@ -56,7 +56,6 @@ class OnlineGameState : public State {
     bool mIsTurn;
 
   private:    
-    inline bool isLegal(int x, int y);
     inline bool isMyTurn();
     void handleMouseInput(const sf::Event& event);
     void handleKeyInput(const sf::Event& event);
@@ -64,8 +63,6 @@ class OnlineGameState : public State {
     void drawStones(sf::RenderWindow& window);
     void drawBroadcast(sf::RenderWindow& window);
     void drawInfoText(sf::RenderWindow& window);
-    std::string getGameEndStr();
-    bool hasWon(int x, int y);
     void sendQuip(const sf::Event& event);
     void goToMenu(const sf::Event& event);
     void playStoneClick();

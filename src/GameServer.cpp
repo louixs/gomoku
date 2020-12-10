@@ -1,5 +1,6 @@
 #include "GameServer.hpp"
 #include "NetworkProtocol.hpp"
+#include "GameUtility.hpp"
 #include <iostream>
 #include <SFML/Network/Packet.hpp>
 
@@ -14,6 +15,7 @@ GameServer::RemotePeer::RemotePeer()
 
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
+, mBoard(mBoardSize, std::vector<int>(mBoardSize, 0))
 , mClientTimeoutTime(sf::seconds(60.f))
 , mCurrentTurn(Game::First)
 , mGameStarted(false)
@@ -253,7 +255,7 @@ void GameServer::handleIncomingPacket(sf::Packet& packet,
       mBoard[x][y] = mCurrentTurn;
 
       // check if anyone has won
-      if (hasWon(x, y)) {
+      if (GameUtility::hasWon(mBoard, mBoardSize, mWinStoneCount, mCurrentTurn, x, y)) {
         // winner is the one that has played at current turn
         sendWinner(mCurrentTurn);
         
@@ -314,190 +316,3 @@ void GameServer::handleIncomingConnections(){
     }
   }
 }
-
-// TODO: refactor!
-bool GameServer::hasWon(int x, int y) {
-
-  int total_count = 0;
-  int current_color = 0;
-
-  // VERTICAL check
-  // count up
-  int y1 = y;
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    y1--;
-  } while (y1 > 0 && current_color == mCurrentTurn);
-
-  // keep checking if the function hasn't exited
-  // count down
-  // reset params
-  y1 = y;
-  // avoid double count
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x][y1];
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-    y1++;
-
-  } while (y1 < mBoardSize && current_color == mCurrentTurn);
-
-  // Horizontal check
-  // reset params
-  int x1 = x;
-  total_count = 0;
-
-  // check left
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-  } while (x1 > 0 && current_color == mCurrentTurn);
-
-  // check right
-  // reset vars
-  x1 = x;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  // check right
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-  } while (x1 < mBoardSize && current_color == mCurrentTurn);
-
-  // DIAGONAL
-
-  // reset vars
-  x1 = x;
-  y1 = y;
-  total_count = 0;
-
-  // 1. LEFT UP RIGHT DOWN
-  // check left up
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-    y1--;
-  } while (x1 > 0 && y1 > 0 && current_color == mCurrentTurn);
-
-  // check right down
-  // reset vars
-  x1 = x;
-  y1 = y;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-    y1++;
-  } while (x1 < mBoardSize && y < mBoardSize && current_color == mCurrentTurn);
-
-
-  // 2. LEFT TO RIGHT UP
-  // reset vars
-  x1 = x;
-  y1 = y;
-  total_count = 0;
-
-  // check left down
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-    y1++;
-  } while (x1 > 0 && y < mBoardSize && current_color == mCurrentTurn);
-
-  // right up
-  // reset vars
-  x1 = x;
-  y1 = y;
-
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-    y1--;
-  } while (x1 < mBoardSize && y > 0 && current_color == mCurrentTurn);
-
-  return false;
-};

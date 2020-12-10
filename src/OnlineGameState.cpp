@@ -2,6 +2,7 @@
 #include "MusicPlayer.hpp"
 #include "SoundPlayer.hpp"
 #include "Utility.hpp"
+#include "GameUtility.hpp"
 #include "Globals.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
@@ -33,6 +34,7 @@ OnlineGameState::OnlineGameState(StateStack& stack, Context context, bool isHost
   : State(stack, context)
   , mWindow(*context.window)
   , mCellSize(40)
+  , mBoard(mBoardSize, std::vector<int>(mBoardSize, 0))
   , mCurrentTurn(Game::First)
   , mConnected(false)
   , mGameServer(nullptr)
@@ -169,18 +171,6 @@ void OnlineGameState::drawStones (sf::RenderWindow& window) {
     }
   }
 }
-
-bool OnlineGameState::isLegal(int x, int y){
-  return mBoard[x][y] == 0 || false;
-};
-
-string OnlineGameState::getGameEndStr () {
-  if (mCurrentTurn == mPlayerTurn) {
-    return "You've won!";
-  } else {
-    return "You've lost!";
-  }
-};
 
 // network
 void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
@@ -369,7 +359,7 @@ void OnlineGameState::handleMouseInput(const sf::Event& event) {
       cout << "Mouse Y: " << event.mouseButton.y << endl;
       cout << "ix: " << ix << endl;
       cout << "iy: " << iy << endl;
-      if (event.mouseButton.button == sf::Mouse::Left && isLegal_2(mBoard, ix, iy)) {
+      if (event.mouseButton.button == sf::Mouse::Left && GameUtility::isLegal(mBoard, ix, iy)) {
         // since current turn is an int, it also represens the stone of the player
         // to avoid duplication
         mBoard[ix][iy] = mCurrentTurn;
@@ -406,7 +396,7 @@ void OnlineGameState::drawInfoText(sf::RenderWindow& window) {
     }
 
     if (mWinner) {
-      mInfoText.setString(getGameEndStr());
+      mInfoText.setString(GameUtility::getGameEndStr(mCurrentTurn, mPlayerTurn));
     }
 
   } else {

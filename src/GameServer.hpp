@@ -19,7 +19,8 @@ class GameServer {
 
   private:
     static const int mBoardSize = 19;
-    int mBoard[mBoardSize][mBoardSize] = { 0 };
+    static const int mWinStoneCount = 5;
+    std::vector<std::vector<int> > mBoard;
     sf::Thread mThread;
     sf::Clock mClock;
     bool mWaitingThreadEnd;
@@ -39,8 +40,6 @@ class GameServer {
       bool ready;
       bool timedOut;
       int turn;
-      //std::string name;
-      // coord - where the stone is placed
     };
     // Unique pointer to remote peers
     typedef std::unique_ptr<RemotePeer> PeerPtr;
@@ -57,7 +56,6 @@ class GameServer {
     void broadcastMessage(const std::string& message);
     void sendToAll(sf::Packet& packet);
     void startGame();
-    bool hasWon(int x, int y);
     void assignTurns();
     void updateClientState();
     void changeTurn();
