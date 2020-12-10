@@ -19,7 +19,8 @@ class LocalGameState : public State {
   private:
     int mCellSize;
     static const int mBoardSize = 19;
-    int mBoard[mBoardSize][mBoardSize] = { 0 };
+    static const int mWinStoneCount = 5;
+    std::vector<std::vector<int> > mBoard;
     enum turns { FIRST = BLACK, SECOND = WHITE };
     turns mCurrentTurn;
     sf::Sprite mBlackStone;
@@ -28,13 +29,11 @@ class LocalGameState : public State {
     std::string winnerStr;
 
   private:
-    inline bool isLegal(int x, int y);
     inline void changeTurn();
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
     void drawWinnerText(sf::RenderWindow& window);
     std::string getWinnerStr(int stone);
-    bool hasWon(int x, int y);
 };
 
 

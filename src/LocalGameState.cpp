@@ -1,6 +1,7 @@
 #include "LocalGameState.hpp"
 #include "ResourceHolder.hpp"
 #include "MusicPlayer.hpp"
+#include "GameUtility.hpp"
 
 #include <iostream>
 
@@ -8,6 +9,7 @@ using namespace std;
 
 LocalGameState::LocalGameState(StateStack& stack, Context context)
   : State(stack, context)
+  , mBoard(mBoardSize, std::vector<int>(mBoardSize, 0))
   , mCellSize(40)
   , mCurrentTurn(FIRST)
 {
@@ -93,197 +95,6 @@ void LocalGameState::drawWinnerText(sf::RenderWindow& window) {
   window.draw(mInfoText);
 }
 
-// TODO: refactor!
-bool LocalGameState::hasWon(int x, int y) {
-
-  int total_count = 0;
-  int current_color = 0;
-
-  // VERTICAL check
-  // count up
-  int y1 = y;
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    y1--;
-  } while (y1 > 0 && current_color == mCurrentTurn);
-
-  // keep checking if the function hasn't exited
-  // count down
-  // reset params
-  y1 = y;
-  // avoid double count
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x][y1];
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-    y1++;
-
-  } while (y1 < mBoardSize && current_color == mCurrentTurn);
-
-  // Horizontal check
-  // reset params
-  int x1 = x;
-  total_count = 0;
-
-  // check left
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-  } while (x1 > 0 && current_color == mCurrentTurn);
-
-  // check right
-  // reset vars
-  x1 = x;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  // check right
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-  } while (x1 < mBoardSize && current_color == mCurrentTurn);
-
-  // DIAGONAL
-
-  // reset vars
-  x1 = x;
-  y1 = y;
-  total_count = 0;
-
-  // 1. LEFT UP RIGHT DOWN
-  // check left up
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-    y1--;
-  } while (x1 > 0 && y1 > 0 && current_color == mCurrentTurn);
-
-  // check right down
-  // reset vars
-  x1 = x;
-  y1 = y;
-
-  // avoid double count
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-    y1++;
-  } while (x1 < mBoardSize && y < mBoardSize && current_color == mCurrentTurn);
-
-
-  // 2. LEFT TO RIGHT UP
-  // reset vars
-  x1 = x;
-  y1 = y;
-  total_count = 0;
-
-  // check left down
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1--;
-    y1++;
-  } while (x1 > 0 && y < mBoardSize && current_color == mCurrentTurn);
-
-  // right up
-  // reset vars
-  x1 = x;
-  y1 = y;
-
-  total_count = total_count - 1;
-
-  do {
-    if (total_count == 5) {
-      return true;
-    }
-
-    current_color = mBoard[x1][y1];
-    // if the current color matches the color to check
-    // increment the total count
-    if (current_color == mCurrentTurn) {
-      total_count++;
-    }
-
-    x1++;
-    y1--;
-  } while (x1 < mBoardSize && y > 0 && current_color == mCurrentTurn);
-
-  return false;
-};
-
-bool LocalGameState::isLegal(int x, int y){
-  return mBoard[x][y] == 0 || false;
-};
-
 void LocalGameState::changeTurn () {
   if (mCurrentTurn == FIRST) {
     mCurrentTurn = SECOND;
@@ -328,12 +139,12 @@ bool LocalGameState::handleEvent(const sf::Event& event) {
     cout << "ix: " << ix << endl;
     cout << "iy: " << iy << endl;
     cout << "current turn: " << mCurrentTurn << endl;
-    if (event.mouseButton.button == sf::Mouse::Left && isLegal(ix, iy)) {
+    if (event.mouseButton.button == sf::Mouse::Left && GameUtility::isLegal(mBoard, ix, iy)) {
       mBoard[ix][iy] = mCurrentTurn;
       draw();
 
       // check winner first -- after five turns to save some computation?
-      if (hasWon(ix, iy)) {
+      if (GameUtility::hasWon(mBoard, mBoardSize, mWinStoneCount, mCurrentTurn, ix, iy)) {
         winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
         mInfoText.setString(winnerStr);
       };
