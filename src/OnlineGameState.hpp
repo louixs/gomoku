@@ -63,7 +63,7 @@ class OnlineGameState : public State {
     void drawStones(sf::RenderWindow& window);
     void drawBroadcast(sf::RenderWindow& window);
     void drawInfoText(sf::RenderWindow& window);
-    void sendQuip(const sf::Event& event);
+    void handleQuips(const sf::Event& event);
     void goToMenu(const sf::Event& event);
     void playStoneClick();
 
@@ -71,7 +71,10 @@ class OnlineGameState : public State {
     void handlePacket(sf::Int32 packetType, sf::Packet& packet);
     void updateBroadcastMessage(sf::Time elapsedTime);
     void sendPositionUpdates(int x, int y);
+    void sendQuip(SoundEffect::ID id);
+
 };
+
 
 
 #endif // __ONLINEGAMMESTATE_H_

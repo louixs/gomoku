@@ -247,9 +247,6 @@ void OnlineGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet) {
       cout << "Received quip" << endl;
       sf::Int32 effect;
       packet >> effect;
-      cout << "Checking if quip is actually what we expect: "
-           << (SoundEffect::NeedWork == (SoundEffect::ID)effect)
-           << endl;
       mSounds.play((SoundEffect::ID)effect);
     } break;
   }
@@ -373,7 +370,7 @@ void OnlineGameState::handleMouseInput(const sf::Event& event) {
 
 void OnlineGameState::handleKeyInput(const sf::Event& event) {
   if (event.type == sf::Event::KeyPressed) {
-    sendQuip(event);
+    handleQuips(event);
 
     if (mWinner) {
       goToMenu(event);
@@ -427,23 +424,32 @@ void OnlineGameState::goToMenu(const sf::Event& event) {
   }
 }
 
-void OnlineGameState::sendQuip(const sf::Event& event) {
+void OnlineGameState::sendQuip(SoundEffect::ID id) {
+  cout << "Sending Quip: " << id << endl;
+  sf::Packet packet;
+  packet << static_cast<sf::Int32>(Client::Quip);
+  packet << static_cast<sf::Int32>(id);
+  mSocket.send(packet);
+}
+
+void OnlineGameState::handleQuips(const sf::Event& event) {
   switch (event.key.code) {
-    case sf::Keyboard::M: {
-      cout << "Sending Quip - NeedWork" << endl;
-      sf::Packet packet;
-      packet << static_cast<sf::Int32>(Client::Quip);
-      packet << static_cast<sf::Int32>(SoundEffect::NeedWork);
-      mSocket.send(packet);
+    case sf::Keyboard::G: {
+      sendQuip(SoundEffect::Greetings);
+    } break;
+      
+    case sf::Keyboard::L: {
+      sendQuip(SoundEffect::HavingLaungh);
     } break;
 
-    case sf::Keyboard::N: {
-      cout << "Sending Quip - Namataro" << endl;
-      sf::Packet packet;
-      packet << static_cast<sf::Int32>(Client::Quip);
-      packet << static_cast<sf::Int32>(SoundEffect::Namataro);
-      mSocket.send(packet);
+    case sf::Keyboard::M: {
+      sendQuip(SoundEffect::MissionCompleted);
     } break;
+
+    case sf::Keyboard::S: {
+      sendQuip(SoundEffect::SomePeople);
+    } break;
+
   }
 }
 

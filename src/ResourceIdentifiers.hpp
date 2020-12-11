@@ -34,8 +34,10 @@ namespace SoundEffect {
     Stone1,
     Stone2,
     // quips
-    NeedWork,
-    Namataro
+    Greetings,
+    HavingLaungh,
+    MissionCompleted,
+    SomePeople,
   };
 }
 
