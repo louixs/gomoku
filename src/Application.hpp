@@ -3,7 +3,6 @@
 
 #include "ResourceHolder.hpp"
 #include "ResourceIdentifiers.hpp"
-//#include "Player.hpp"
 #include "StateStack.hpp"
 #include "MusicPlayer.hpp"
 #include "SoundPlayer.hpp"
@@ -27,14 +26,11 @@ class Application {
 
   private:
     int mCellSize;
-    static const int mBoardSize = 19;
-    int mBoard[mBoardSize][mBoardSize] = { 0 };
     static const sf::Time TimePerFrame;
     sf::ContextSettings mSettings;
     sf::RenderWindow mWindow;
     TextureHolder mTextures;
     FontHolder mFonts;
-    //Player mPlayer;
     MusicPlayer mMusic;
     SoundPlayer mSounds;
     StateStack mStateStack;

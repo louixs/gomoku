@@ -18,7 +18,6 @@ class LocalGameState : public State {
 
   private:
     int mCellSize;
-    static const int mBoardSize = 19;
     static const int mWinStoneCount = 5;
     std::vector<std::vector<int> > mBoard;
     enum turns { FIRST = BLACK, SECOND = WHITE };

@@ -3,13 +3,15 @@
 #include "MusicPlayer.hpp"
 #include "GameUtility.hpp"
 
+#include "Globals.hpp"
+
 #include <iostream>
 
 using namespace std;
 
 LocalGameState::LocalGameState(StateStack& stack, Context context)
   : State(stack, context)
-  , mBoard(mBoardSize, std::vector<int>(mBoardSize, 0))
+  , mBoard(g_boardSize, std::vector<int>(g_boardSize, 0))
   , mCellSize(40)
   , mCurrentTurn(FIRST)
 {
@@ -42,19 +44,19 @@ void LocalGameState::drawBoard (sf::RenderWindow& window) {
   float midCell = 1.0 * mCellSize / 2;
 
   // Horizontal lines
-  for (int x = 0; x < mBoardSize; x++) {
+  for (int x = 0; x < g_boardSize; x++) {
     sf::Vertex hline[] = {
       sf::Vertex(sf::Vector2f(midCell, midCell + x * mCellSize), sf::Color::Black),
-      sf::Vertex(sf::Vector2f(mCellSize * mBoardSize - midCell, midCell + x * mCellSize), sf::Color::Black)
+      sf::Vertex(sf::Vector2f(mCellSize * g_boardSize - midCell, midCell + x * mCellSize), sf::Color::Black)
     };
     window.draw(hline, 2, sf::Lines);
   };
 
   // Vertical lines
-  for (int y = 0; y < mBoardSize; y++) {
+  for (int y = 0; y < g_boardSize; y++) {
     sf::Vertex vline[] = {
       sf::Vertex(sf::Vector2f(midCell + y * mCellSize, midCell), sf::Color::Black),
-      sf::Vertex(sf::Vector2f(midCell + y * mCellSize, mCellSize * mBoardSize - midCell), sf::Color::Black)
+      sf::Vertex(sf::Vector2f(midCell + y * mCellSize, mCellSize * g_boardSize - midCell), sf::Color::Black)
     };
     window.draw(vline, 2, sf::Lines);
   };
@@ -77,8 +79,8 @@ void LocalGameState::drawBoard (sf::RenderWindow& window) {
 
 void LocalGameState::drawStones (sf::RenderWindow& window) {
   // Note that this doesn't work if window is resized!!
-  for (int x = 0; x < mBoardSize; x++) {
-    for (int y = 0; y < mBoardSize; y++) {
+  for (int x = 0; x < g_boardSize; x++) {
+    for (int y = 0; y < g_boardSize; y++) {
         if (mBoard[x][y] == BLACK) {
           mBlackStone.setPosition(x*mCellSize, y*mCellSize);
           window.draw(mBlackStone);
@@ -142,9 +144,8 @@ bool LocalGameState::handleEvent(const sf::Event& event) {
     if (event.mouseButton.button == sf::Mouse::Left && GameUtility::isLegal(mBoard, ix, iy)) {
       mBoard[ix][iy] = mCurrentTurn;
       draw();
-
       // check winner first -- after five turns to save some computation?
-      if (GameUtility::hasWon(mBoard, mBoardSize, mWinStoneCount, mCurrentTurn, ix, iy)) {
+      if (GameUtility::hasWon(mBoard, g_boardSize, mWinStoneCount, mCurrentTurn, ix, iy)) {
         winnerStr = getWinnerStr(mCurrentTurn) + " has won!";
         mInfoText.setString(winnerStr);
       };

@@ -16,15 +16,15 @@ using namespace std;
 
 // Global vars
 sf::IpAddress g_hostIp;
+const int g_boardSize = 19;
 
-//
 const sf::Time Application::TimePerFrame = sf::seconds(1.f/30.f);
 
 Application::Application()
 : mCellSize(40)
-, mWindow(sf::VideoMode(mCellSize * mBoardSize, mCellSize * mBoardSize),
+, mWindow(sf::VideoMode(mCellSize * g_boardSize, mCellSize * g_boardSize),
           "Gomoku",
-          sf::Style::Titlebar | sf::Style::Close, // note this is a bitwise OR
+          sf::Style::Titlebar | sf::Style::Close, // note that this is a bitwise OR
           mSettings)
 , mTextures()
 , mFonts()

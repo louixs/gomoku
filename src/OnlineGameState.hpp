@@ -27,7 +27,6 @@ class OnlineGameState : public State {
   private:
     sf::RenderWindow& mWindow;
     int mCellSize;
-    static const int mBoardSize = 19;
     std::vector<std::vector<int> > mBoard;
     Game::Turns mCurrentTurn;
     sf::Sprite mBlackStone;

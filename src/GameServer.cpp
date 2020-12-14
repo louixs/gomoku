@@ -3,6 +3,7 @@
 #include "GameUtility.hpp"
 #include <iostream>
 #include <SFML/Network/Packet.hpp>
+#include "Globals.hpp"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ GameServer::RemotePeer::RemotePeer()
 
 GameServer::GameServer()
 : mThread(&GameServer::executionThread, this)
-, mBoard(mBoardSize, std::vector<int>(mBoardSize, 0))
+, mBoard(g_boardSize, std::vector<int>(g_boardSize, 0))
 , mClientTimeoutTime(sf::seconds(60.f))
 , mCurrentTurn(Game::First)
 , mGameStarted(false)
@@ -255,7 +256,7 @@ void GameServer::handleIncomingPacket(sf::Packet& packet,
       mBoard[x][y] = mCurrentTurn;
 
       // check if anyone has won
-      if (GameUtility::hasWon(mBoard, mBoardSize, mWinStoneCount, mCurrentTurn, x, y)) {
+      if (GameUtility::hasWon(mBoard, g_boardSize, mWinStoneCount, mCurrentTurn, x, y)) {
         // winner is the one that has played at current turn
         sendWinner(mCurrentTurn);
         

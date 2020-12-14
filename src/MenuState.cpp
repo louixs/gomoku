@@ -17,33 +17,15 @@ MenuState::MenuState(StateStack& stack, Context context)
 
   mBackgroundSprite.setTexture(texture);
 
+  sf::Vector2f optionTopPosition = (context.window->getView().getSize() / 2.f);
   sf::Text playLocalOption;
-  playLocalOption.setFont(font);
-  playLocalOption.setString("Play Local");
-  centerOrigin(playLocalOption);
-  playLocalOption.setPosition(context.window->getView().getSize() / 2.f);
-  mOptions.push_back(playLocalOption);
-
+  addMenuOption(playLocalOption, font, "Play Local", optionTopPosition);
   sf::Text joinOnlineOption;
-  joinOnlineOption.setFont(font);
-  joinOnlineOption.setString("Join Online Game");
-  centerOrigin(joinOnlineOption);
-  joinOnlineOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 30.f));
-  mOptions.push_back(joinOnlineOption);
-
+  addMenuOption(joinOnlineOption, font, "Join Online Game", (optionTopPosition + sf::Vector2f(0.f, 30.f)));
   sf::Text hostOnlineOption;
-  hostOnlineOption.setFont(font);
-  hostOnlineOption.setString("Host Online Game");
-  centerOrigin(hostOnlineOption);
-  hostOnlineOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 60.f));
-  mOptions.push_back(hostOnlineOption);
-
+  addMenuOption(hostOnlineOption, font, "Host Online Game", (optionTopPosition + sf::Vector2f(0.f, 60.f)));
   sf::Text exitOption;
-  exitOption.setFont(font);
-  exitOption.setString("Exit");
-  centerOrigin(exitOption);
-  exitOption.setPosition(playLocalOption.getPosition() + sf::Vector2f(0.f, 90.f));
-  mOptions.push_back(exitOption);
+  addMenuOption(exitOption, font, "Exit", (optionTopPosition + sf::Vector2f(0.f, 90.f)));
 
   updateOptionText();
 
@@ -137,6 +119,18 @@ bool MenuState::handleEvent(const sf::Event& event) {
     updateOptionText();
   }
   return true;
+}
+
+void MenuState::addMenuOption(sf::Text& t,
+                              sf::Font& font,
+                              const std::string& s,
+                              const sf::Vector2f& position) {
+  std::cout << "setting font" << std::endl;
+  t.setFont(font);
+  t.setString(s);
+  centerOrigin(t);
+  t.setPosition(position);
+  mOptions.push_back(t);
 }
 
 void MenuState::updateOptionText() {
