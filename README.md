@@ -67,6 +67,11 @@ If you are hosting the game, you will need to give one of the addresses to your 
 This option lets you exit the game.
 You can also close the window to quit the game.
 
+# Music and title/menu image
+
+Music: The theme music (theme.ogg) is an exerpt of a song composed and produced.
+Image: The title image (title.jpg) is a photo that I have taken myself.
+
 # Acknowledgements
 
 The techniques for drawing board, stones and the related event handling is largely borrowed from [sevity's GoGame](https://github.com/sevity/GoGame).
