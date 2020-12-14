@@ -86,6 +86,12 @@ It's an experimental feature but I wanted to implement this feature to see if a 
 Music: The theme music (theme.ogg) is an exerpt of a song composed and produced.
 Image: The title image (title.jpg) is a photo that I have taken myself.
 
+# Tests
+
+Unit tests are written using [Catch2](https://github.com/catchorg/Catch2) framework and can be found in the `tests` directory. 
+
+To run the tests, you can run `./scripts/run_tests`
+
 # Acknowledgements
 
 The techniques for drawing board, stones and the related event handling is largely borrowed from [sevity's GoGame](https://github.com/sevity/GoGame).
