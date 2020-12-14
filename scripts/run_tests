@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Compiling tests"
-g++ -std=c++17 -c ./tests/GameFunctionTests.cpp ./src/GameUtility.hpp \
+g++ -std=c++17 -c ./tests/GameFunctionTests.cpp ./src/GameUtility.cpp \
 && g++ ./*.o -o run_tests_bin \
 && rm ./*.o ./src/*.gch \
 
