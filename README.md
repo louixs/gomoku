@@ -67,6 +67,20 @@ If you are hosting the game, you will need to give one of the addresses to your 
 This option lets you exit the game.
 You can also close the window to quit the game.
 
+# Game play
+
+While in your turn, you can left click on the board to place your stone.
+
+You can also send each other voice phrases by pressing one of the following keys:
+G: sends greetings
+L: sends a phrase saying you're having a laugh
+M: sends a phrase saying mission completed in Russian (I'm not entirely sure but according to the freesound page where I got this, there's a comment that says so)
+S: sends a phrase that says "Some people take offence, I kid you not"
+
+You can send those voice phrases at any point once the game has started.
+
+It's an experimental feature but I wanted to implement this feature to see if a rather quiet game can be made more fun.
+
 # Music and title/menu image
 
 Music: The theme music (theme.ogg) is an exerpt of a song composed and produced.
