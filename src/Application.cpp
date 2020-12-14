@@ -34,7 +34,7 @@ Application::Application()
 {
   mSettings.antialiasingLevel = 8;
   mFonts.load(Fonts::Main, "assets/InputSerif-Light.ttf");
-  mTextures.load(Textures::TitleScreen, "assets/title.png");
+  mTextures.load(Textures::TitleScreen, "assets/title.jpg");
   mTextures.load(Textures::BlackStone, "assets/black_stone.bmp");
   mTextures.load(Textures::WhiteStone, "assets/white_stone.bmp");
 

@@ -59,7 +59,7 @@ MenuState::MenuState(StateStack& stack, Context context)
   );
   publicIp.setPosition(5.f, 5.f);
   publicIp.setCharacterSize(20);
-  publicIp.setFillColor(sf::Color::White);
+  publicIp.setFillColor(sf::Color::Black);
   mAddresses.push_back(publicIp);
 
   std::cout << "Getting local ip" << std::endl;
@@ -72,7 +72,7 @@ MenuState::MenuState(StateStack& stack, Context context)
   );
   localIp.setPosition(5.f, 40.f);
   localIp.setCharacterSize(20);
-  localIp.setFillColor(sf::Color::White);
+  localIp.setFillColor(sf::Color::Black);
   mAddresses.push_back(localIp);
 
 };
@@ -145,8 +145,8 @@ void MenuState::updateOptionText() {
   }
 
   for(sf::Text& text : mOptions) {
-    text.setFillColor(sf::Color::White);
+    text.setFillColor(sf::Color::Black);
   }
 
-  mOptions[mOptionIndex].setFillColor(sf::Color::Red);
+  mOptions[mOptionIndex].setFillColor(sf::Color::White);
 }
