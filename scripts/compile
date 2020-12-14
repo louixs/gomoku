@@ -1,0 +1,32 @@
+#!/bin/bash
+
+exit_on_error()
+{
+    if [ "$?" != "0" ]; then
+        echo "$1"
+        exit 1
+    fi
+}
+
+echo "Compiling"
+
+g++ -std=c++17 -c \
+./src/*.cpp
+
+exit_on_error "Failed to compile"
+
+echo "Writing output"
+g++ *.o -o ./game \
+    -lsfml-audio -lsfml-graphics \
+    -lsfml-window -lsfml-system \
+    -lsfml-network
+
+exit_on_error "Failed to write output"
+
+
+echo "Cleaning up "
+rm *.o
+
+exit_on_error "Failed to clean up"
+
+echo "Finished"

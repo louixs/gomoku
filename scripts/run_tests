@@ -8,5 +8,5 @@ g++ -std=c++17 -c ./tests/GameFunctionTests.cpp ./src/GameUtility.hpp \
 echo "Running tests as well"
 ./run_tests_bin
 
-echo "Removing run_tests temp binary"
+echo "Removing temporary file"
 rm ./run_tests_bin
