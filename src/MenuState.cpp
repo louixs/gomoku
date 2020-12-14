@@ -125,7 +125,6 @@ void MenuState::addMenuOption(sf::Text& t,
                               sf::Font& font,
                               const std::string& s,
                               const sf::Vector2f& position) {
-  std::cout << "setting font" << std::endl;
   t.setFont(font);
   t.setString(s);
   centerOrigin(t);
