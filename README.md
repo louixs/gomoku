@@ -1,15 +1,73 @@
 # About
 
-This is a simple gomoku game that allows both local and network play.
-It is made using SFML framework.
+A simple [gomoku](https://en.wikipedia.org/wiki/Gomoku) game that allows both local (on one machine) and over the network play.
 
-For playing over network, note that if the players are on different networks (or over the Internet) and if the host is behind a NAT port forward for port _51781_ on needs to be configured for the router to forward incoming traffic.
+# Building the game
 
-# Compile and run
+## Dependency
 
-Compilation is tested on Mac OS and Arch Linux. It has not been tested with Windows.
+To build the game you'd need to have [SFML framework](https://www.sfml-dev.org/) installed on your machine.
 
-# Credits
+Compilation is tested on Mac OS and Arch Linux. Note that it has not been tested with Windows.
+
+## Clone repository
+
+Clone the repository
+
+`git clone git@github.com:louixs/gomoku.git`
+
+## Build
+Once you have SFML on your machine you can now compile the game by running the `compile` script.
+`./script/compile`
+
+This will produce a `game` binary file in the root of the project.
+
+You can then run this to start the game:
+`./game` 
+
+# How to play
+
+Once you start the game, you'll be presented with a title screen.
+You can press any key to proceed to the next menu screen.
+
+## Menu
+
+You can navigate between the menu items by using arrow up/down keys on your keyboard.
+Hit enter key to start the game mode that you have selected.
+
+### Local game
+
+This is the mode in which two players play one after another on the same machine. 
+
+### Join Online Game
+
+This mode is for joining a game by connecting a host.
+If not done yet, ask your counter part to select the "Host Online Game" option first.
+Then ask your host for their IP address - local or public depending on where you are.
+Once you hit enter, you will be presented with a screen that prompts you to enter the ip address.
+Enter your host's IP address and hit enter again to connect and start the game.
+Once the connection has successfully established with the game server, the game will show the text that it has started. 
+
+### Host Online Game
+
+This mode spawns up a game instance and a server instance. The server will need to accept incoming connections to allow another player to join the game over the network. Make sure to note your IP addresses displayed on the menu screen so that your counter part joining the game can connect. 
+
+If you are both in the same local network, the joiner needs to put the local IP address. This mode should be easier to make it work. You or your counter part's firewall or security software may block incoming/outbound traffic. Check the configuration of firewall or security software if connection fails.
+
+If you are not in the same local network and if you are both behind NAT (typically by being connected to the internet via a router), it might be a little tricky to get connected. If your ISP has provided you with a public IP address, you can configure your router to forward port 51781 to your machine. Note that some ISP put you behind their NAT as well. In that case, and if you really want to make this work, you'd need talk to your ISP to give you a public IP.
+
+### IP address
+
+On left top corner of the screen there are two ip addresses.
+One is your local ip address and the other is your public ip address.
+If you are hosting the game, you will need to give one of the addresses to your counter part joining the game.
+
+### Exit
+
+This option lets you exit the game.
+You can also close the window to quit the game.
+
+# Acknowledgements
 
 The techniques for drawing board, stones and the related event handling is largely borrowed from [sevity's GoGame](https://github.com/sevity/GoGame).
 
