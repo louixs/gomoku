@@ -2,38 +2,25 @@
 
 A simple [gomoku](https://en.wikipedia.org/wiki/Gomoku) game that allows both local (on one machine) and over the network play.
 
-# Building the game
-
-## Dependency
-
-To build the game you'd need to have [SFML framework](https://www.sfml-dev.org/) installed on your machine.
-
-Compilation is tested on Mac OS and Arch Linux. Note that it has not been tested with Windows.
-
-## Clone repository
-
-Clone the repository
-
-`git clone git@github.com:louixs/gomoku.git`
-
-## Build
-Once you have SFML on your machine you can now compile the game by running the `compile` script.
-`./script/compile`
-
-This will produce a `game` binary file in the root of the project.
-
-You can then run this to start the game:
-`./game` 
+The game looks basically like the game of Go. It's played using the same board and stones but it's got a simpler rules.
+![](screenshots/in_game.png)
 
 # How to play
+
+Please note that currently only Mac and Linux is supported.
+If you are on mac, you can use this [installer](https://github.com/louixs/gomoku/raw/master/mac_installer/gomoku-mac-package.pkg). Running it will automatically install all the dependencies (mainly SFML).
 
 Once you start the game, you'll be presented with a title screen.
 You can press any key to proceed to the next menu screen.
 
+![](screenshots/title.png)
+
 ## Menu
 
 You can navigate between the menu items by using arrow up/down keys on your keyboard.
-Hit enter key to start the game mode that you have selected.
+Hit enter key to start the game mode that you have selected. The menu screen also shows your public IP and local IP. If you are in the same network as your host, and are joining you can ask your host for their local IP. You'll be prompted to enter it in the next screen. If your host is on a different network you can ask for your hosts's public IP. 
+
+![](screenshots/menu.png)
 
 ### Local game
 
@@ -44,9 +31,15 @@ This is the mode in which two players play one after another on the same machine
 This mode is for joining a game by connecting a host.
 If not done yet, ask your counter part to select the "Host Online Game" option first.
 Then ask your host for their IP address - local or public depending on where you are.
-Once you hit enter, you will be presented with a screen that prompts you to enter the ip address.
+Once you hit enter, you'll see a prompt to enter host's ip address.
 Enter your host's IP address and hit enter again to connect and start the game.
 Once the connection has successfully established with the game server, the game will show the text that it has started. 
+
+You can type in numbers and period once you see this screen. Delete button should also work if you need to correct.
+![](screenshots/join_1.png)
+
+Once you have finished typing in the IP address, hit enter to proceed. (Please note the address shown on the screenshot is an example).
+![](screenshots/join_2.png)
 
 ### Host Online Game
 
@@ -91,6 +84,31 @@ Image: The title image (title.jpg) is a photo that I have taken myself.
 Unit tests are written using [Catch2](https://github.com/catchorg/Catch2) framework and can be found in the `tests` directory. 
 
 To run the tests, you can run `./scripts/run_tests`
+
+# Development
+
+This section shows what's needed and how to build games in case you'd like to develop.
+
+## Dependency
+
+To build the game you'd need to have [SFML framework](https://www.sfml-dev.org/) installed on your machine.
+
+Compilation is tested on Mac OS and Arch Linux. Note that it has not been tested with Windows.
+
+## Clone repository
+
+Clone the repository
+
+`git clone git@github.com:louixs/gomoku.git`
+
+## Build
+Once you have SFML on your machine you can now compile the game by running the `compile` script.
+`./script/compile`
+
+This will produce a `game` binary file in the root of the project.
+
+You can then run this to start the game:
+`./game` 
 
 # Acknowledgements
 
